@@ -4,7 +4,7 @@ from re import search as research
 from os import walk as oswalk
 
 from libs.config.info import CricketInfo
-from libs.config.completedseries import CompletedSeriesList
+from libs.completedseries import CompletedSeriesList
 
 
 def team_test_page_generator(info):

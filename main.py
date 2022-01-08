@@ -1,9 +1,9 @@
 from libs.config.info import CricketInfo
-import libs.config.generators as generators
+import libs.generators as generators
 import libs.savematchfiles as savematchfiles
 from timeit import timeit
 from winsound import Beep
-from libs.config.completedseries import CompletedSeriesList
+from libs.completedseries import CompletedSeriesList
 from re import search as research
 
 def savematchdatatoarchive() -> None:

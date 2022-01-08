@@ -10,7 +10,7 @@ from glob import glob
 from os.path import exists
 from re import match as rematch, search as research
 from requests import get
-from libs.config.ground import Ground
+from libs.ground import Ground
 from pickle import load, dump
 
 def match_file_generator():
