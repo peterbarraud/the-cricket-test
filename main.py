@@ -1,0 +1,39 @@
+from libs.config.info import CricketInfo
+import libs.config.generators as generators
+import libs.savematchfiles as savematchfiles
+from timeit import timeit
+from winsound import Beep
+from libs.config.completedseries import CompletedSeriesList
+from re import search as research
+
+def savematchdatatoarchive() -> None:
+    info : CricketInfo = CricketInfo()
+    completeSeries = CompletedSeriesList()
+    for team_test_cricket_page in generators.team_test_page_generator(info):
+        for series_results_page in generators.team_series_page_generator(info, team_test_cricket_page, completeSeries):
+            print(series_results_page)
+            for match_result_page in generators.scorecard_generator(info, series_results_page):
+                savematchfiles.save(info, match_result_page)
+            # set the series as over (probably)
+            completeSeries.set_series_complete(series_results_page=series_results_page)
+
+def main() -> None:
+    savematchdatatoarchive()
+
+def doneit(time_taken_in_sec : float) -> None:
+    time_to_run : float = 0.0
+    unit_of_time = None
+    for _ in range(2):
+        Beep(500,100)
+    if time_taken_in_sec/60 > 1:
+        time_to_run = time_taken_in_sec/60
+        unit_of_time = 'mins'
+    else:
+        time_to_run = time_taken_in_sec
+        unit_of_time = 'secs'
+
+    print(f'DONE in : {time_to_run} {unit_of_time}')
+
+if __name__ == '__main__':
+    t = timeit(stmt=main, number=1)
+    doneit(t)
