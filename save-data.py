@@ -6,7 +6,7 @@ from winsound import Beep
 from libs.completedseries import CompletedSeriesList
 from re import search as research
 
-def savematchdatatoarchive() -> None:
+def savematchdatatofiles() -> None:
     info : CricketInfo = CricketInfo()
     completeSeries = CompletedSeriesList()
     for team_test_cricket_page in generators.team_test_page_generator(info):
@@ -18,7 +18,7 @@ def savematchdatatoarchive() -> None:
             completeSeries.set_series_complete(series_results_page=series_results_page)
 
 def main() -> None:
-    savematchdatatoarchive()
+    savematchdatatofiles()
 
 def doneit(time_taken_in_sec : float) -> None:
     time_to_run : float = 0.0
@@ -26,10 +26,10 @@ def doneit(time_taken_in_sec : float) -> None:
     for _ in range(2):
         Beep(500,100)
     if time_taken_in_sec/60 > 1:
-        time_to_run = time_taken_in_sec/60
+        time_to_run = round(time_taken_in_sec/60, ndigits=2)
         unit_of_time = 'mins'
     else:
-        time_to_run = time_taken_in_sec
+        time_to_run = round(time_taken_in_sec, 2)
         unit_of_time = 'secs'
 
     print(f'DONE in : {time_to_run} {unit_of_time}')
