@@ -25,8 +25,8 @@ class CricketInfo:
         return self.__items['homecenter']
 
     @property
-    def ScorecardClass(self) -> str:
-        return self.__items['scorecardclass']
+    def Scorecard(self) -> str:
+        return self.__items['scorecard']
 
     @property
     def MainContentX(self) -> str:
@@ -40,6 +40,9 @@ class CricketInfo:
     def InningsCard(self) -> str:
         return self.__items['inningscard']
 
+    @property
+    def BatterTitleCell(self) -> str:
+        return self.__items['battertitlecell']
 
 def main():
     i = CricketInfo()

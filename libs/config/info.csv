@@ -3,7 +3,7 @@ homecenter|https://stats.espncricinfo.com
 teamspage|https://stats.espncricinfo.com/ci/engine/records/index.html
 teamtestseriespagetemplate|https://stats.espncricinfo.com/ci/engine/records/team/series_results.html?class=1;id=<id>;type=team
 teamsgroup|recteam
-scorecardclass|match-scorecard-table
+scorecard|match-scorecard-table
 maincontentx|main-content-x
 allinnings|match-scorecard-page
-inningscards|match-scorecard-table
+battertitlecell|batsman-cell

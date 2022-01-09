@@ -75,6 +75,7 @@ def makebattercsv(info : CricketInfo):
                 m = rematch(pattern=r'^(.+?)\s+\d', string=innings_card.find('h5').get_text())
                 batting_side : str = m.group(1)
                 print(batting_side, innings_number)
+        break
 
     with open ("data.files/grounds.dict", 'wb') as f:
          dump(grounds, f)
