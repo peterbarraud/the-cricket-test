@@ -6,7 +6,7 @@ from zipfile import ZipFile
 from bs4.element import ResultSet, Tag
 from requests.models import ContentDecodingError
 from libs.config.info import CricketInfo
-from os import walk as oswalk
+from os import truncate, walk as oswalk
 from glob import glob
 from os.path import exists
 from re import L, match as rematch, search as research, IGNORECASE
@@ -57,26 +57,32 @@ def __get_cleaned_name(namestr : str) -> tuple:
         name = namestr.strip().rstrip('†')
     return (name, is_cap, is_wk)
     
+# Use match status to find out if we need to get the match data
+def __is_match_played(soup : Bs) -> bool:
+    match_status = soup.find(class_='status-text')
+    # if no "status" available for a match, implies it wasn't play
+    if match_status:
+        if rematch('Match (abandoned|cancelled) without a ball bowled', match_status.get_text()):
+            return False
+    else:   # not status-text was found so don't collect data
+        return False
+    return True
+    
 
 def makebattercsv():
     info : CricketInfo = CricketInfo()
     grounds = MatchGrounds()
+    total : int = 0
     for match_file in match_file_generator():
         unzipped = ZipFile(file=match_file,mode='r')
         soup : Bs = Bs(markup=unzipped.read('matcharchive'), features='html.parser')
-        match_status = soup.find(class_='status-text')
-        # if no "status" available for a match, implies it wasn't play
-        if match_status:
-            if rematch('Match (abandoned|cancelled) without a ball bowled', match_status.get_text()):
-                continue
-        else:   # not status-text was found so don't collect data
+        if not __is_match_played(soup):
             continue
         # each score has innings cards for the innings played and the last one for the match summary
         match_cards : ResultSet = soup.find_all(class_=info.Scorecard)
         match_summary_card : Tag = match_cards.pop(-1)
         (test_number, ground, played_in_country) = __get_match_details(match_summary_card, grounds)        
         innings_card : Tag = None
-        print(len(match_cards))
         for i, innings_card in enumerate(match_cards):
             innings_number : int = i + 1
             m = rematch(pattern=r'^(.+?)\s+\d', string=innings_card.find('h5').get_text())
@@ -87,9 +93,11 @@ def makebattercsv():
                 (namestr, outedstr, runs, balls, mins, fours, sixes, _) = (x.get_text() for x in batter_row.find_all('td'))
                 outed_how : OutedHow = get_outed_how(outedstr)
                 (name, is_cap, is_wk) = __get_cleaned_name(namestr=namestr)
-                print(name, is_cap, is_wk)
-            break
-        break
+                if name == 'Virat Kohli':
+                    total += runs
+            # break
+        # break
+
 
 # For testing purposes only
 def main():
