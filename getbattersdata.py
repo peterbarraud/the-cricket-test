@@ -12,6 +12,7 @@ from winsound import Beep
 from timeit import timeit
 from libs.generators import match_file_generator
 from libs.matchgrounds import MatchGrounds
+from libs.savecsv import SaveCsv
 
 def __save_match_file_for_checking(match_file : str):
     unzipped = ZipFile(file=match_file,mode='r')
@@ -50,7 +51,7 @@ def __get_cleaned_name(namestr : str) -> tuple:
     elif namestr.strip().endswith('†'):
         is_wk = True
         name = namestr.strip().rstrip('†')
-    return (name, is_cap, is_wk)
+    return (name.strip(), is_cap, is_wk)
     
 # Use match status to find out if we need to get the match data
 def __is_match_played(soup : Bs) -> bool:
@@ -70,9 +71,7 @@ def __logwrite(line, log):
 def makebattercsv():
     info : CricketInfo = CricketInfo()
     grounds = MatchGrounds()
-    log = open('testing.files/errors.log', 'w')
-    # files = [r'C:\Users\barraud\Documents\tech-stuff\the-cricket-test\data.files\match.files\india-in-australia-2020-21-1223867\australia-vs-india-1st-test-1223869.zip']
-    
+    savecsv = SaveCsv()
     for match_file in match_file_generator():
         unzipped = ZipFile(file=match_file,mode='r')
         soup : Bs = Bs(markup=unzipped.read('matcharchive'), features='html.parser')
@@ -98,6 +97,11 @@ def makebattercsv():
                     (namestr, outedstr, runs, balls, mins, fours, sixes, _, _) = (x.get_text() for x in batter_row.find_all('td'))
                 outed_how : OutedHow = get_outed_how(outedstr)
                 (name, is_cap, is_wk) = __get_cleaned_name(namestr=namestr)
+                savecsv.writerow(name=name,playedin=played_in_country,side=batting_side,
+                                    captain=is_cap, outtedhow=outed_how.value, runs=runs,
+                                    wicketkeeper=is_wk,innings=innings_number,testnumber=test_number)
+            # break
+        break
 
 def doneit(time_taken_in_sec : float) -> None:
     time_to_run : float = 0.0

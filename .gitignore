@@ -4,3 +4,4 @@ data.files/match.files/
 libs/__pycache__/
 libs/config/__pycache__/
 testing.files/
+data.files/batters.csv
