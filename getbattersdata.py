@@ -4,15 +4,9 @@
 from bs4 import BeautifulSoup as Bs
 from zipfile import ZipFile
 from bs4.element import ResultSet, Tag
-from requests.models import ContentDecodingError
 from libs.config.info import CricketInfo
-from os import truncate, walk as oswalk
-from glob import glob
-from os.path import exists
-from re import L, match as rematch, search as research, IGNORECASE
-from requests import get
+from re import L, match as rematch, search as research
 from libs.ground import Ground
-from pickle import NONE, load, dump
 from libs.outedhow import OutedHow, get_outed_how
 from winsound import Beep
 from timeit import timeit
@@ -32,6 +26,7 @@ def makebowlercsv(info : CricketInfo):
 # Played in country
 # Match number
 def __get_match_details(match_details_card : Tag, grounds: MatchGrounds) -> tuple:
+    '''From the match card, get: Test match number, ground name and played in country'''
     test_number : int = None
     for row_count, row in enumerate(match_details_card.find_all('tr')):
         if row_count == 0:
@@ -59,6 +54,7 @@ def __get_cleaned_name(namestr : str) -> tuple:
     
 # Use match status to find out if we need to get the match data
 def __is_match_played(soup : Bs) -> bool:
+    '''Check if match was played. Maybe abandoned or cancelled or something'''
     match_status = soup.find(class_='status-text')
     # if no "status" available for a match, implies it wasn't play
     if match_status:
@@ -67,12 +63,16 @@ def __is_match_played(soup : Bs) -> bool:
     else:   # not status-text was found so don't collect data
         return False
     return True
-    
+
+def __logwrite(line, log):
+    log.write(f'{line}\n')
 
 def makebattercsv():
     info : CricketInfo = CricketInfo()
     grounds = MatchGrounds()
-    total : int = 0
+    log = open('testing.files/errors.log', 'w')
+    # files = [r'C:\Users\barraud\Documents\tech-stuff\the-cricket-test\data.files\match.files\india-in-australia-2020-21-1223867\australia-vs-india-1st-test-1223869.zip']
+    
     for match_file in match_file_generator():
         unzipped = ZipFile(file=match_file,mode='r')
         soup : Bs = Bs(markup=unzipped.read('matcharchive'), features='html.parser')
@@ -90,24 +90,14 @@ def makebattercsv():
             batter_title_rows : Tag = innings_card.find_all(class_=info.BatterTitleCell)
             for batter_title_row in batter_title_rows:
                 batter_row = batter_title_row.parent
-                (namestr, outedstr, runs, balls, mins, fours, sixes, _) = (x.get_text() for x in batter_row.find_all('td'))
+                # in later times, they've added a cell for the video of how batter outed. So, it's previously 8 now 9 cells
+                batter_cells = batter_row.find_all('td')
+                if len(batter_cells) == 8:
+                    (namestr, outedstr, runs, balls, mins, fours, sixes, _) = (x.get_text() for x in batter_row.find_all('td'))
+                elif len(batter_cells) == 9:
+                    (namestr, outedstr, runs, balls, mins, fours, sixes, _, _) = (x.get_text() for x in batter_row.find_all('td'))
                 outed_how : OutedHow = get_outed_how(outedstr)
                 (name, is_cap, is_wk) = __get_cleaned_name(namestr=namestr)
-                if name == 'Virat Kohli':
-                    total += runs
-            # break
-        # break
-
-
-# For testing purposes only
-def main():
-    # __save_match_file_for_checking(r'data.files\aus-tour-of-sa-2017-18-1075977\south-africa-vs-australia-4th-test-1075985.zip')
-    from libs.config.info import CricketInfo
-    makebattercsv(CricketInfo())
-    try:
-        makebattercsv(CricketInfo())
-    except Exception as e:
-        print(e)
 
 def doneit(time_taken_in_sec : float) -> None:
     time_to_run : float = 0.0
@@ -126,3 +116,4 @@ def doneit(time_taken_in_sec : float) -> None:
 if __name__ == '__main__':
     t = timeit(stmt=makebattercsv, number=1)
     doneit(t)
+    # __save_match_file_for_checking(r'data.files/match.files\india-in-australia-2020-21-1223867\australia-vs-india-1st-test-1223869.zip')
