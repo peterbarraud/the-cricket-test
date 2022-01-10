@@ -16,7 +16,6 @@ from pickle import NONE, load, dump
 from libs.outedhow import OutedHow, get_outed_how
 from winsound import Beep
 from timeit import timeit
-from libs.savematchplayedlist import SaveMatchPlayedList
 from libs.generators import match_file_generator
 from libs.matchgrounds import MatchGrounds
 
@@ -68,8 +67,6 @@ def makebattercsv():
         for innings_number, innings_card in enumerate(match_cards):
             m = rematch(pattern=r'^(.+?)\s+\d', string=innings_card.find('h5').get_text())
             batting_side : str = m.group(1)
-            if innings_card.find(class_=info.BatterTitleCell) == None:
-                print('ok')
             batter_row : Tag = innings_card.find(class_=info.BatterTitleCell).parent
             (name, outedstr, runs, balls, mins, fours, sixes, _) = (x.get_text() for x in batter_row.find_all('td'))
             outed_how : OutedHow = get_outed_how(outedstr)
@@ -100,4 +97,4 @@ def doneit(time_taken_in_sec : float) -> None:
 
 if __name__ == '__main__':
     t = timeit(stmt=makebattercsv, number=1)
-    # doneit(t)
+    doneit(t)
