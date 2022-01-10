@@ -73,6 +73,7 @@ def makebattercsv():
     grounds = MatchGrounds()
     savecsv = SaveCsv()
     for match_file in match_file_generator():
+        print(match_file)
         unzipped = ZipFile(file=match_file,mode='r')
         soup : Bs = Bs(markup=unzipped.read('matcharchive'), features='html.parser')
         if not __is_match_played(soup):
@@ -98,10 +99,8 @@ def makebattercsv():
                 outed_how : OutedHow = get_outed_how(outedstr)
                 (name, is_cap, is_wk) = __get_cleaned_name(namestr=namestr)
                 savecsv.writerow(name=name,playedin=played_in_country,side=batting_side,
-                                    captain=is_cap, outtedhow=outed_how.value, runs=runs,
+                                    captain=is_cap, outedhow=outed_how.value, runs=runs,
                                     wicketkeeper=is_wk,innings=innings_number,testnumber=test_number)
-            # break
-        break
 
 def doneit(time_taken_in_sec : float) -> None:
     time_to_run : float = 0.0

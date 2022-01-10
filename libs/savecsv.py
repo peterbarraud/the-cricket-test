@@ -5,7 +5,7 @@ class SaveCsv:
     def __init__(self):
         self.__writer : DictWriter = None
         self.__csvfile = open('data.files/batters.csv', 'w', newline='')
-        fieldnames = ['name', 'outtedhow','runs', 'captain','wicketkeeper','side','testnumber','playedin','innings']
+        fieldnames = ['name', 'outedhow','runs', 'captain','wicketkeeper','side','testnumber','playedin','innings']
         self.__writer = DictWriter(self.__csvfile, fieldnames=fieldnames)      
         self.__writer.writeheader()  
 
