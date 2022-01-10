@@ -44,6 +44,20 @@ def __get_match_details(match_details_card : Tag, grounds: MatchGrounds) -> tupl
     return (test_number, ground.name, ground.country)
 
 
+def __get_cleaned_name(namestr : str) -> tuple:
+    '''Names often have the captain or wicketkeeper moniker at the end'''
+    is_cap : bool = False
+    name : str = namestr
+    is_wk : bool = False
+    if namestr.strip().endswith('(c)'):
+        is_cap = True
+        name = namestr.strip().rstrip('(c)')
+    elif namestr.strip().endswith('†'):
+        is_wk = True
+        name = namestr.strip().rstrip('†')
+    return (name, is_cap, is_wk)
+    
+
 def makebattercsv():
     info : CricketInfo = CricketInfo()
     grounds = MatchGrounds()
@@ -60,16 +74,22 @@ def makebattercsv():
         # each score has innings cards for the innings played and the last one for the match summary
         match_cards : ResultSet = soup.find_all(class_=info.Scorecard)
         match_summary_card : Tag = match_cards.pop(-1)
-        (test_number, ground, played_in_country) = __get_match_details(match_summary_card, grounds)
-        innings_number : int = 0
+        (test_number, ground, played_in_country) = __get_match_details(match_summary_card, grounds)        
         innings_card : Tag = None
-        # since the last match card is the summary card, we're iterating till the second last
-        for innings_number, innings_card in enumerate(match_cards):
+        print(len(match_cards))
+        for i, innings_card in enumerate(match_cards):
+            innings_number : int = i + 1
             m = rematch(pattern=r'^(.+?)\s+\d', string=innings_card.find('h5').get_text())
             batting_side : str = m.group(1)
-            batter_row : Tag = innings_card.find(class_=info.BatterTitleCell).parent
-            (name, outedstr, runs, balls, mins, fours, sixes, _) = (x.get_text() for x in batter_row.find_all('td'))
-            outed_how : OutedHow = get_outed_how(outedstr)
+            batter_title_rows : Tag = innings_card.find_all(class_=info.BatterTitleCell)
+            for batter_title_row in batter_title_rows:
+                batter_row = batter_title_row.parent
+                (namestr, outedstr, runs, balls, mins, fours, sixes, _) = (x.get_text() for x in batter_row.find_all('td'))
+                outed_how : OutedHow = get_outed_how(outedstr)
+                (name, is_cap, is_wk) = __get_cleaned_name(namestr=namestr)
+                print(name, is_cap, is_wk)
+            break
+        break
 
 # For testing purposes only
 def main():
