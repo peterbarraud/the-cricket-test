@@ -45,6 +45,11 @@ def series_id_generator():
         for dir in dirs:
             yield dir
 
+def match_file_generator():
+    for (root,dirs,files) in oswalk(top='data.files/match.files', topdown=True):
+        for file in files:
+            yield f"{root}\{file}"
+
 def main():
     print('This is a PURE CLASS. You should call this from some main function')
 

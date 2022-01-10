@@ -15,9 +15,9 @@ def save(info : CricketInfo, page):
     m = research(r'/([^/]+?)/([^/]+?)/[^/]+?$',page)
     filepath = m.group(1)
     filename = m.group(2)
-    if not exists(f"data.files/{filepath}/{filename}.zip"):
-        Path(f"data.files/{filepath}").mkdir(parents=True, exist_ok=True)
-        zf = ZipFile(f"data.files/{filepath}/{filename}.zip", mode='w', compression=ZIP_DEFLATED)
+    if not exists(f"data.files/match.files/{filepath}/{filename}.zip"):
+        Path(f"data.files/match.files/{filepath}").mkdir(parents=True, exist_ok=True)
+        zf = ZipFile(f"data.files/match.files/{filepath}/{filename}.zip", mode='w', compression=ZIP_DEFLATED)
         soup = Bs(markup=get(url=page).text, features='html.parser')
         zf.writestr('matcharchive', str(soup.find(class_=info.MainContentX)))
         zf.close()
