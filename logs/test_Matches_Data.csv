@@ -1,0 +1,41 @@
+Name,Data type,Max value,Optimized data type
+TEST Match No,uint16,2537
+Match ID,uint64,1419831
+Match Name,object,
+Series ID,uint64,1416069
+Series Name,object,
+Match Start Date,object,
+Match End Date,object,
+Match Format,object,
+Team1 ID,uint8,40
+Team1 Name,object,
+Team1 Captain,uint64,79159
+Innings1 Team1 Runs Scored,uint16,903
+Innings1 Team1 Wickets Fell,uint8,10
+Innings1 Team1 Extras Rec,uint8,64
+Innings2 Team1 Runs Scored,float64,680.0
+Innings2 Team1 Wickets Fell,float64,10.0
+Innings2 Team1 Extras Rec,float64,68.0
+Team2 ID,uint8,140
+Team2 Name,object,
+Team2 Captain,uint64,76625
+Innings1 Team2 Runs Scored,float64,952.0
+Innings1 Team2 Wickets Fell,float64,10.0
+Innings1 Team2 Extras Rec,float64,76.0
+Innings2 Team2 Runs Scored,float64,657.0
+Innings2 Team2 Wickets Fell,float64,10.0
+Innings2 Team2 Extras Rec,float64,61.0
+Match Venue (Stadium),object,
+Match Venue (City),object,
+Match Venue (Country),object,
+Umpire 1,object,
+Umpire 2,object,
+Match Referee,object,
+Toss Winner,object,
+Toss Winner Choice,object,
+Match Winner,object,
+Match Result Text,object,
+MOM Player,float64,114592.0
+Team1 Playing 11,object,
+Team2 Playing 11,object,
+Debut Players,object,
