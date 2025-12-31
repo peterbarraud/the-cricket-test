@@ -1,9 +1,0 @@
-Match ID,1419831,int64,uint32
-innings,4,int64,uint8
-batsman,114592,int64,uint32
-runs,400.0,float64,uint16
-balls,847.0,float64,uint16
-fours,52.0,float64,uint8
-sixes,12.0,float64,uint8
-strikeRate,600.0,float64,None
-bowler,114592.0,float64,uint32
