@@ -2,4 +2,4 @@ __pycache__/
 data/archive/
 data/game.jsons/
 archive/
-log/
+logs/

@@ -12,22 +12,29 @@ class GameInfo:
     Margin : int = 0
     IsInnningsWin : bool = False
     IsWinByRuns : bool = False
+    Team1Id : int = 0
+    Team2Id : int = 0
     HomeTeamId : int = 0
-    AwayTeamId : int = 0
-    HomeTeamCapId : int = 0
-    AwayTeamCapId : int = 0
-
-
+    Team1CaptainId : int = 0
+    Team2CaptainId : int = 0
+    VenueId : int = 0
 
 @dataclass
 class PlayerInfo:
-    id : str = None
-    name : str = None
-    captain : bool = False
+    Id : int = None
+    Name : str = None
+    Captain : bool = False
     Href : str = None
 
 @dataclass
 class TeamInfo:
-    id : str = None
-    name : str = None
-    team : list = None
+    Id : int = 0
+    Name : str = None
+    Team : list = None
+
+@dataclass
+class VenueInfo:
+    Id : int = 0
+    Name : str = None
+    City : str = None
+    Country : int = 0
