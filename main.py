@@ -24,6 +24,7 @@ def main():
         c += 1
         if c/110 == int(c/110):
             print(c)
+    battingCSV.close()
 
 if __name__ == "__main__":
     print()
