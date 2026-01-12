@@ -25,6 +25,18 @@ class PlayerInfo:
     Name : str = None
     Captain : bool = False
     Href : str = None
+    Runs : int = 0
+    Balls : int = 0
+    Dots : int = 0
+    Fours : int = 0
+    Sixes : int = 0
+    Mins : int = 0
+    Out : str = 0
+    Bowler : int = 0
+    BattingPosition : int = 0
+    Fielders : list = None
+
+
 
 @dataclass
 class TeamInfo:

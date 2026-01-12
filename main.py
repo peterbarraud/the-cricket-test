@@ -1,4 +1,5 @@
 import json
+from csv import DictWriter
 
 from libs.logger import Logger
 from libs.generators import game_info_generator,innings_info_generator
@@ -8,23 +9,21 @@ from libs.dataclasses import GameInfo,TeamInfo,VenueInfo
 from libs.playerinfo import get_playerscsv_dict
 from libs.venueinfo import get_venue_info,get_venuecsv_dict
 
+from libs.csvmaker import BattingCSV
 
 def main():
-    teamscsv_dict = get_teamscsv_dict()
-    logger : Logger = Logger()
+    battingCSV = BattingCSV()
+
     c = 0
-    playerscsv_dict : dict = get_playerscsv_dict()
-    venuecsv_dict : dict = get_venuecsv_dict()
-    for scorecard,teamsInfo in game_info_generator():
-        teams = get_teams(teamsInfo,scorecard['matchHeader']['team1'],scorecard['matchHeader']['team2'])
-        for innings_info in innings_info_generator(scorecard['scoreCard']):
-            pass
+    # playerscsv_dict : dict = get_playerscsv_dict()
+    # venuecsv_dict : dict = get_venuecsv_dict()
+    # batting_csv.WriteLn('match,innings,team,player,runs,out,\n')
+    for match_id,scorecard,teamsInfo in game_info_generator():
+        for inning_number,batting_team,bowling_team in innings_info_generator(scorecard['scoreCard']):
+            battingCSV.WriterRow(match_id,inning_number,batting_team)
         c += 1
         if c/110 == int(c/110):
             print(c)
-
-    logger.close()
-    print()
 
 if __name__ == "__main__":
     print()

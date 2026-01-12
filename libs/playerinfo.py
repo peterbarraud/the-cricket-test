@@ -6,3 +6,6 @@ def get_playerscsv_dict():
         for row in DictReader(f):
             players_dict[row['id']] = row['name']
     return players_dict
+
+
+
