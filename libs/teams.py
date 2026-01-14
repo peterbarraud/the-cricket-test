@@ -7,11 +7,12 @@ def get_teams(teams_info,team1 : dict,team2 : dict):
     Gets the team info for both teams in a dict by teamid
     
     :param teams_info: game_info_generator teamsInfo
-    :param team1: Scorecard matchHeader
+    :param team1: Scorecard matchHeader - We need this to get the team Id (teams_info has only team name)
     :type team1: dict
-    :param team2: Scorecard matchHeader
+    :param team2: Scorecard matchHeader - We need this to get the team Id (teams_info has only team name)
     :type team2: dict
     """
+    # 10►3►children►0►3►children►0►3►children►0
     team_dict : dict = dict()
     for team_info in teams_info[10][3]['children']:
         teamInfo = TeamInfo()
@@ -24,10 +25,19 @@ def get_teams(teams_info,team1 : dict,team2 : dict):
         else:
             raise Exception("Team out not found")
         players : list = list()
+        # playing 11
         for player_info in team_info[3]['children'][1][3]['children'][3]['children'][1][3]['children'][0]:
             players.append(PlayerInfo(player_info[2],player_info[3]['children'][0],'(c)' in player_info[3]['children'][1],player_info[3]['href']))
+        # extras
+        # 
+        for player_info in team_info[3]['children'][1][3]['children'][3]['children'][1][3]['children'][1][3]['children'][1][3]['children']:
+            print()
+            players.append(PlayerInfo(player_info[2],player_info[3]['children'][0]))
         teamInfo.Team = players
         team_dict[teamInfo.Id] = teamInfo
+    for i,t in team_dict.items():
+        if len(t.Team) != 11:
+            print()
     return team_dict
 
 
