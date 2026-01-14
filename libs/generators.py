@@ -39,10 +39,36 @@ def game_info_generator():
                     yield match_id,scorecard,match_info
 
 def __get_player_by_name(name : str,team : TeamInfo):
-    if name == "S O'Keefe":
-        name = "S O'Keefe".replace("'","")
-    if name == 'Dane Vilas':
-        return PlayerInfo(0) 
+    if name in []:
+        print()
+    # handle name execptions
+    if name in ['M Aamer','Mohammad Aamer']:
+        name = 'Mohammad Amir'
+    elif name == "O'Brien":
+        name = 'Iain O Brien'
+    elif name == "O'Reilly":
+        name = 'Bill OReilly'
+    elif name == "S O'Keefe":
+        name = 'Steve OKeefe'
+    elif name == "O'Connor":
+        name = 'Shayne OConnor'
+    elif name == "Su'a":
+        name = 'Murphy Sua'
+    elif name == "O'Donnell":
+        name = 'Simon ODonnell'
+    elif name == "O'Keeffe":
+        name = 'Kerry OKeeffe'
+    elif name == "O'Sullivan":
+        name = 'David OSullivan'
+    elif name == "O'Neill":
+        name = 'Norm ONeill'
+    elif name == "D'Souza":
+        #TODO: I think this guy played for Pak
+        name = 'Antao DSouza'
+    elif name == "D'Oliveira":
+        name = 'Basil D Oliveira'
+
+
     player : PlayerInfo = None
     # 1. First, is the most basic check
     player_list = [x for x in team.Team if name.lower() == x.Name.lower()]
@@ -72,8 +98,8 @@ def __get_player_by_name(name : str,team : TeamInfo):
                 if first_init_last == f"{g2.groups()[0]} {g2.groups()[1]}":
                     return player
                 else:
-                    # 4. If name is contained in Name or ShortName
-                    player_list = [x for x in team.Team if name.lower() in x.Name.lower() or name.lower() in x.ShortName.lower()]
+                    # 4. If name is contained in Name
+                    player_list = [x for x in team.Team if name.lower() in x.Name.lower()]
                     if len(player_list) == 1:
                         return player_list[0]
     print()
@@ -82,10 +108,13 @@ def __find_outers(outdesc : str, bowlersData,bowling_team):
     bowler : PlayerInfo = None
     fielders : list = list()
     if outdesc.startswith('lbw ') or outdesc.startswith('b ') or outdesc.startswith('c & b ') or outdesc.startswith('hit wkt b '):
-        name = outdesc.replace('hit wkt b ','').replace('lbw b ','').replace('c & b ','').replace('b ','')
+        name = outdesc.replace('hit wkt b ','').replace('lbw b ','').replace('c & b ','')
+        # remove 'b ' but from start of the string ONLY
+        name = resub(r'^b\s+','',name)
         bowler = __get_player_by_name(name,bowling_team)
         if bowler is None:
-            print('bowler is None')
+            with open('logs/bowler.is.none.log','a') as f:
+                f.write(f'bowler is None: {outdesc}\n')
     else:
         g = rematch(r'^\s*(?:c|st)\s+(.+?)\s+b\s+(.+?)$',outdesc)
         if g:

@@ -12,6 +12,9 @@ from libs.venueinfo import get_venue_info,get_venuecsv_dict
 from libs.csvmaker import BattingCSV
 
 def main():
+    with open('logs/bowler.is.none.log','w') as f:
+        f.write('')
+
     with open('logs/findouters.log','w') as f:
         f.write('')
     battingCSV = BattingCSV()
@@ -21,15 +24,10 @@ def main():
     # venuecsv_dict : dict = get_venuecsv_dict()
     # batting_csv.WriteLn('match,innings,team,player,runs,out,\n')
     for match_id,scorecard,teamsInfo in game_info_generator():
-        if match_id == 14593:
-            print()
-        # first we're going to make the match teams. we need this info for when we the score doesn't give the bowler and fielder details
+        # first we're going to make the match teams. we need this info for when the score doesn't give the bowler and fielder details
         match_teams = get_teams(teamsInfo,scorecard['matchHeader']['team1'],scorecard['matchHeader']['team2'])
-        for i,team in match_teams.items():
-            if len(team.Team) < 11:
-                print()
-        # for inning_number,batting_team,bowling_team in innings_info_generator(scorecard['scoreCard'],match_teams):
-        #     battingCSV.WriterRow(match_id,inning_number,batting_team)
+        for inning_number,batting_team,bowling_team in innings_info_generator(scorecard['scoreCard'],match_teams):
+            battingCSV.WriterRow(match_id,inning_number,batting_team)
         c += 1
         if c/110 == int(c/110):
             print(c)
