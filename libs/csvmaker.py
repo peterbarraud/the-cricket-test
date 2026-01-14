@@ -13,7 +13,6 @@ class BattingCSV:
     def WriterRow(self, game_id : int, innings_number : int, battingTeamData : TeamInfo):
         player : PlayerInfo = None
         for player in battingTeamData.Team:
-            print("|".join([str(x) for x in player.Fielders]))
             self.__csv_writer.writerow({'gameid':game_id,'innings':innings_number,'team':battingTeamData.Id,'batter':player.Id,
                 'runs':player.Runs,'balls':player.Balls,'fours':player.Fours,'sixes':player.Sixes,
                 'out':player.Out,'fielders':"|".join([str(x) for x in player.Fielders]),
