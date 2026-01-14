@@ -12,12 +12,10 @@ def get_teams(teams_info,team1 : dict,team2 : dict):
     :param team2: Scorecard matchHeader - We need this to get the team Id (teams_info has only team name)
     :type team2: dict
     """
-    # 10►3►children►0►3►children►0►3►children►0
     team_dict : dict = dict()
     for team_info in teams_info[10][3]['children']:
         teamInfo = TeamInfo()
         teamInfo.Name = team_info[3]['children'][0][3]['children'][0]
-        # teams_info[3]['children'][0][3]['children'][0]
         if team1['name'] == teamInfo.Name:
             teamInfo.Id = team1['id']
         elif  team2['name'] == teamInfo.Name:
