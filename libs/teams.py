@@ -27,15 +27,11 @@ def get_teams(teams_info,team1 : dict,team2 : dict):
         for player_info in team_info[3]['children'][1][3]['children'][3]['children'][1][3]['children'][0]:
             players.append(PlayerInfo(player_info[2],player_info[3]['children'][0],'(c)' in player_info[3]['children'][1],player_info[3]['href']))
         # extras
-        # 
-        for player_info in team_info[3]['children'][1][3]['children'][3]['children'][1][3]['children'][1][3]['children'][1][3]['children']:
-            print()
-            players.append(PlayerInfo(player_info[2],player_info[3]['children'][0]))
+        if team_info[3]['children'][1][3]['children'][3]['children'][1][3]['children'][1]:
+            for player_info in team_info[3]['children'][1][3]['children'][3]['children'][1][3]['children'][1][3]['children'][1][3]['children']:
+                players.append(PlayerInfo(player_info[2],player_info[3]['children'][0]))
         teamInfo.Team = players
         team_dict[teamInfo.Id] = teamInfo
-    for i,t in team_dict.items():
-        if len(t.Team) != 11:
-            print()
     return team_dict
 
 
@@ -59,31 +55,3 @@ def make_teams_csv(teams_dict):
                 raise Exception(f"Seems to have more than one entry for samne team id: {i}")
             else:
                 csv_writer.writerow([i,j[0]])
-
-# def get_match_teams(scorecard):
-#     teams : dict = dict()
-#     for innings in scorecard['scoreCard']:
-#         batTeamId = innings['batTeamDetails']['batTeamId']
-#         bowlTeamId = innings['bowlTeamDetails']['bowlTeamId']
-#         battingTeam : TeamInfo = teams.get(batTeamId,None)
-#         bowlingTeam : TeamInfo = teams.get(bowlTeamId,None)
-#         if battingTeam is None:
-#             battingTeam : TeamInfo = TeamInfo(batTeamId)
-#             battingTeam.Team = list()
-#             teams[batTeamId] = battingTeam
-#         for _,batter_data in innings['batTeamDetails']['batsmenData'].items():
-#             player_data = [x for x in battingTeam.Team if x.Id == batter_data['batId']]
-#             if not player_data:
-#                 battingTeam.Team.append(PlayerInfo(batter_data['batId'],batter_data['batName'],batter_data['batShortName']))
-#             print()
-#         if bowlingTeam is None:
-#             bowlingTeam : TeamInfo = TeamInfo(bowlTeamId)
-#             bowlingTeam.Team = list()
-#             teams[bowlTeamId] = bowlingTeam
-#         for _,bowler_data in innings['bowlTeamDetails']['bowlersData'].items():
-#             player_data = [x for x in bowlingTeam.Team if x.Id == bowler_data['bowlerId']]
-#             if not player_data:
-#                 bowlingTeam.Team.append(PlayerInfo(bowler_data['bowlerId'],bowler_data['bowlName'],bowler_data['bowlShortName']))
-#             print()
-#         print()
-#     return teams
