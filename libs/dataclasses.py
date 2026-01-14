@@ -23,7 +23,6 @@ class GameInfo:
 class PlayerInfo:
     Id : int = None
     Name : str = None
-    ShortName : str = None
     Captain : bool = False
     Href : str = None
     Runs : int = 0
