@@ -51,3 +51,31 @@ def make_teams_csv(teams_dict):
                 raise Exception(f"Seems to have more than one entry for samne team id: {i}")
             else:
                 csv_writer.writerow([i,j[0]])
+
+def get_match_teams(scorecard):
+    teams : dict = dict()
+    for innings in scorecard['scoreCard']:
+        batTeamId = innings['batTeamDetails']['batTeamId']
+        bowlTeamId = innings['bowlTeamDetails']['bowlTeamId']
+        battingTeam : TeamInfo = teams.get(batTeamId,None)
+        bowlingTeam : TeamInfo = teams.get(bowlTeamId,None)
+        if battingTeam is None:
+            battingTeam : TeamInfo = TeamInfo(batTeamId)
+            battingTeam.Team = list()
+            teams[batTeamId] = battingTeam
+        for _,batter_data in innings['batTeamDetails']['batsmenData'].items():
+            player_data = [x for x in battingTeam.Team if x.Id == batter_data['batId']]
+            if not player_data:
+                battingTeam.Team.append(PlayerInfo(batter_data['batId'],batter_data['batName'],batter_data['batShortName']))
+            print()
+        if bowlingTeam is None:
+            bowlingTeam : TeamInfo = TeamInfo(bowlTeamId)
+            bowlingTeam.Team = list()
+            teams[bowlTeamId] = bowlingTeam
+        for _,bowler_data in innings['bowlTeamDetails']['bowlersData'].items():
+            player_data = [x for x in bowlingTeam.Team if x.Id == bowler_data['bowlerId']]
+            if not player_data:
+                bowlingTeam.Team.append(PlayerInfo(bowler_data['bowlerId'],bowler_data['bowlName'],bowler_data['bowlShortName']))
+            print()
+        print()
+    return teams
