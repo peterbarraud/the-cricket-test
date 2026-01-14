@@ -39,73 +39,53 @@ def game_info_generator():
                     yield match_id,scorecard,match_info
 
 def __get_player_by_name(name : str,team : TeamInfo):
+    if name == "S O'Keefe":
+        name = "S O'Keefe".replace("'","")
+    if name == 'Dane Vilas':
+        return PlayerInfo(0) 
     player : PlayerInfo = None
-    g1 = rematch(r'^(.).+?(\S+?)$',name)
-    shortName1 = f"{g1.groups()[0]} {g1.groups()[1]}"
-    if len(name.split(' ')) == 1:
-        shortName1 = name
-    for player in team.Team:
-        playername = resub(r'^Sir\s*','',player.Name)
-        g2 = rematch(r'^(.).+?(\S+?)$',playername)
-        shortName2 = f"{g2.groups()[0]} {g2.groups()[1]}"
-        if shortName1 == shortName2:
-            return player
+    # 1. First, is the most basic check
+    player_list = [x for x in team.Team if name.lower() == x.Name.lower()]
+    if len(player_list) == 1:
+        return player_list[0]
     else:
-        player_list = [x for x in team.Team if x.Name.lower().endswith(f" {name.lower()}")]
-        if len(player_list) == 1:
-            return player_list[0]
-        else:
+        # 2. Check if name is a single word (like Amla or Tendulkar)
+        # The we're going to assume that is the only one in that team
+        if ' ' not in name:
             player_list = [x for x in team.Team if name.lower() in x.Name.lower()]
             if len(player_list) == 1:
                 return player_list[0]
             else:
-                lastname = rematch(r'^(.).+?(\S+?)$',name).groups()[1]
-                player_list = [x for x in team.Team if x.Name.lower().endswith(f" {lastname}") or x.Name.lower().endswith(f" {lastname.lower().replace("'","")}")]
+                # 2.1. Check if the single name is a last name
+                player_list = [x for x in team.Team if name == x.Name.split(' ')[-1]]
                 if len(player_list) == 1:
                     return player_list[0]
                 else:
-                    print(name)
-    #     p.Name
-    # shortName = f"{g.groups()[0]} {g.groups()[1]}"
-    # lastName = g.groups()[1]
-    # player_list = [x for x in team.Team if x.Name.lower() == name
-    #                or name.lower() in x.Name.lower()
-    #                or name.lower() in x.ShortName.lower()
-    #                or shortName.lower() in x.ShortName.lower()
-    #                or x.Name.lower().endswith(lastName.lower())]
-    # if len(player_list) == 1:
-    #     player = player_list[0]
-    # else:
-    #     print()
-    
-    # shortName = f"{g.groups()[0]} {g.groups()[1]}"
-    # if shortName != name:
-    #     print()
-    # player_list = [x for x in team.Team if x.ShortName.lower() in name]
-    # if len(player_list) == 1:
-    #     player = player_list[0]
-    # else:
-    #     first_name,last_name = name.split()[0],name.split()[-1]
-    #     player_list = [x for x in team.Team if last_name.lower() in x.Name.lower()]
-    #     if len(player_list) == 1:
-    #         player = player_list[0]
-    #     elif len(player_list) > 1:
-    #         first_name_list = [x for x in team.Team if x.Name.lower().startswith(first_name.lower())]
-    #         if len(first_name_list) == 1:
-    #             player = first_name_list[0]
-    #         else:
-    #             print()
-    #     else:
-    #         print()
+                    print()
+        else:
+            # 3. We will check for first initial + last name. Like "V Kohli"
+            g1 = rematch(r'^(.).+?(\S+?)$',name)
+            first_init_last = f"{g1.groups()[0]} {g1.groups()[1]}"
+            for player in team.Team:
+                playername = resub(r'^Sir\s*','',player.Name)
+                g2 = rematch(r'^(.).+?(\S+?)$',playername)
+                if first_init_last == f"{g2.groups()[0]} {g2.groups()[1]}":
+                    return player
+                else:
+                    # 4. If name is contained in Name or ShortName
+                    player_list = [x for x in team.Team if name.lower() in x.Name.lower() or name.lower() in x.ShortName.lower()]
+                    if len(player_list) == 1:
+                        return player_list[0]
+    print()
 
 def __find_outers(outdesc : str, bowlersData,bowling_team):
     bowler : PlayerInfo = None
     fielders : list = list()
-    if outdesc.startswith('lbw ') or outdesc.startswith('b ') or outdesc.startswith('c & b '):
-        name = outdesc.replace('lbw b ','').replace('c & b ','').replace('b ','')
+    if outdesc.startswith('lbw ') or outdesc.startswith('b ') or outdesc.startswith('c & b ') or outdesc.startswith('hit wkt b '):
+        name = outdesc.replace('hit wkt b ','').replace('lbw b ','').replace('c & b ','').replace('b ','')
         bowler = __get_player_by_name(name,bowling_team)
         if bowler is None:
-            print()
+            print('bowler is None')
     else:
         g = rematch(r'^\s*(?:c|st)\s+(.+?)\s+b\s+(.+?)$',outdesc)
         if g:
@@ -119,7 +99,7 @@ def __find_outers(outdesc : str, bowlersData,bowling_team):
                     if fielder:
                         fielders.append(fielder)
                     else:
-                        print()
+                        print('Fielder is None')
             else:
                 print()
         else:

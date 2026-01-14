@@ -4,7 +4,8 @@ from libs.dataclasses import TeamInfo,PlayerInfo
 class BattingCSV:
     def __init__(self,csv_file='data/batting.csv'):
         self.__f = open(csv_file,'w',newline='')
-        field_names = ['gameid,innings,team,batter,position,runs,balls,fours,sixes,out,fielders,bowler']
+        field_names = ['gameid','innings','team','batter','position',
+                       'runs','balls','fours','sixes','out','fielders','bowler']
         self.__csv_writer = DictWriter(self.__f,field_names)
         self.__csv_writer.writeheader()
 
