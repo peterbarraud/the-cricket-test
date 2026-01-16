@@ -38,37 +38,10 @@ def game_info_generator():
                     match_id = scorecard['matchHeader']['matchId']
                     yield match_id,scorecard,match_info
 
-def __get_player_by_name(name : str,team : TeamInfo):
-    if name in []:
-        print()
+def __get_player_by_name(name : str,team : TeamInfo, play_name_exceptions : dict):
     # handle name execptions
-    if name in ['M Aamer','Mohammad Aamer']:
-        name = 'Mohammad Amir'
-    elif name == "O'Brien":
-        name = 'Iain O Brien'
-    elif name == "O'Reilly":
-        name = 'Bill OReilly'
-    elif name == "S O'Keefe":
-        name = 'Steve OKeefe'
-    elif name == "O'Connor":
-        name = 'Shayne OConnor'
-    elif name == "Su'a":
-        name = 'Murphy Sua'
-    elif name == "O'Donnell":
-        name = 'Simon ODonnell'
-    elif name == "O'Keeffe":
-        name = 'Kerry OKeeffe'
-    elif name == "O'Sullivan":
-        name = 'David OSullivan'
-    elif name == "O'Neill":
-        name = 'Norm ONeill'
-    elif name == "D'Souza":
-        #TODO: I think this guy played for Pak
-        name = 'Antao DSouza'
-    elif name == "D'Oliveira":
-        name = 'Basil D Oliveira'
-
-
+    if exception_name := play_name_exceptions.get(name,False):
+        name = exception_name
     player : PlayerInfo = None
     # 1. First, is the most basic check
     player_list = [x for x in team.Team if name.lower() == x.Name.lower()]
@@ -87,7 +60,7 @@ def __get_player_by_name(name : str,team : TeamInfo):
                 if len(player_list) == 1:
                     return player_list[0]
                 else:
-                    print()
+                    pass
         else:
             # 3. We will check for first initial + last name. Like "V Kohli"
             g1 = rematch(r'^(.).+?(\S+?)$',name)
@@ -102,41 +75,38 @@ def __get_player_by_name(name : str,team : TeamInfo):
                     player_list = [x for x in team.Team if name.lower() in x.Name.lower()]
                     if len(player_list) == 1:
                         return player_list[0]
-    print()
 
-def __find_outers(outdesc : str, bowlersData,bowling_team):
+def __find_outers(outdesc : str, bowlersData,bowling_team,play_name_exceptions : dict):
     bowler : PlayerInfo = None
     fielders : list = list()
     if outdesc.startswith('lbw ') or outdesc.startswith('b ') or outdesc.startswith('c & b ') or outdesc.startswith('hit wkt b '):
         name = outdesc.replace('hit wkt b ','').replace('lbw b ','').replace('c & b ','')
         # remove 'b ' but from start of the string ONLY
         name = resub(r'^b\s+','',name)
-        bowler = __get_player_by_name(name,bowling_team)
-        if bowler is None:
-            with open('logs/bowler.is.none.log','a') as f:
-                f.write(f'bowler is None: {outdesc}\n')
+        bowler = __get_player_by_name(name,bowling_team,play_name_exceptions)
     else:
         g = rematch(r'^\s*(?:c|st)\s+(.+?)\s+b\s+(.+?)$',outdesc)
         if g:
             if len(g.groups()) == 2:
                 fielder_name = g.groups()[0]
                 bowler_name = g.groups()[1]
-                bowler = __get_player_by_name(bowler_name,bowling_team)
+                bowler = __get_player_by_name(bowler_name,bowling_team,play_name_exceptions)
                 #TODO: For now, we are going to ignore catches by substitute players
                 if not fielder_name.startswith('(sub)'):
-                    fielder = __get_player_by_name(fielder_name,bowling_team)
+                    fielder = __get_player_by_name(fielder_name,bowling_team,play_name_exceptions)
                     if fielder:
                         fielders.append(fielder)
                     else:
-                        print('Fielder is None')
+                        pass
+                        # print('Fielder is None')
             else:
-                print()
+                pass
         else:
-            print()
+            pass
     return bowler,fielders
 
 
-def innings_info_generator(scorecard_data,match_teams):
+def innings_info_generator(scorecard_data,match_teams,play_name_exceptions):
     for innings in scorecard_data:
         match_id = innings['matchId']
         inning_number = innings['inningsId']
@@ -173,7 +143,12 @@ def innings_info_generator(scorecard_data,match_teams):
             #TODO: Check for no bowler
             bowler : PlayerInfo = PlayerInfo(batter_data.get('bowlerId',0))
             if outtype not in ['NOTOUT','DIDNOTBAT','RUNOUT','RETIREDHURT','ABSENTHURT','RETIREDOUT'] and bowler.Id == 0:
-                bowler,fielders = __find_outers(batter_data['outDesc'],bowlingTeamDetails['bowlersData'],match_teams[bowlingTeamDetails['bowlTeamId']])
+                bowler,fielders = __find_outers(batter_data['outDesc'],bowlingTeamDetails['bowlersData'],match_teams[bowlingTeamDetails['bowlTeamId']],play_name_exceptions)
+                if bowler is None:
+                    with open('logs/bowler.is.none.log','a') as f:
+                        f.write(f"bowler is None: {batter_data['outDesc']}\n")
+                        bowler,fielders = __find_outers(batter_data['outDesc'],bowlingTeamDetails['bowlersData'],match_teams[bowlingTeamDetails['bowlTeamId']],play_name_exceptions)
+
             batter : PlayerInfo = PlayerInfo(batter_data['batId'])
             batter.Runs = batter_data['runs']
             batter.Balls = batter_data.get('balls',0)

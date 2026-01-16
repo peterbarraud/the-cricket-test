@@ -2,7 +2,32 @@ from csv import reader as csvreader, writer as csvwriter,DictReader
 from json import dumps
 from libs.dataclasses import PlayerInfo,TeamInfo
 
-def get_teams(teams_info,team1 : dict,team2 : dict):
+def __get_teams_from_scorecard(scorecard):
+    teams : dict = dict()
+    for innings in scorecard:
+        # batter details
+        battingTeam = innings['batTeamDetails']
+        team : TeamInfo = teams.get(battingTeam['batTeamId'],TeamInfo(battingTeam['batTeamId']))
+        if team.Team is None:
+            team.Team = list()
+            teams[battingTeam['batTeamId']] = team
+        for _,batter in battingTeam['batsmenData'].items():
+            if not any(x.Id == batter['batId'] for x in team.Team):
+                team.Team.append(PlayerInfo(batter['batId'],batter['batName']))
+        # bowler details
+        bowlingTeam = innings['bowlTeamDetails']
+        team : TeamInfo = teams.get(bowlingTeam['bowlTeamId'],TeamInfo(bowlingTeam['bowlTeamId']))
+        if team.Team is None:
+            team.Team = list()
+            teams[bowlingTeam['bowlTeamId']] = team
+        for _,bowler in bowlingTeam['bowlersData'].items():
+            if not any(x.Id == bowler['bowlerId'] for x in team.Team):
+                team.Team.append(PlayerInfo(bowler['bowlerId'],bowler['bowlName']))
+
+
+    return teams
+
+def get_teams(teams_info,team1 : dict,team2 : dict,scoreCard):
     """
     Gets the team info for both teams in a dict by teamid
     
@@ -11,6 +36,7 @@ def get_teams(teams_info,team1 : dict,team2 : dict):
     :type team1: dict
     :param team2: Scorecard matchHeader - We need this to get the team Id (teams_info has only team name)
     :type team2: dict
+    :para scoreCard - We need this because, seems that the teams_info is sometimes missiong players
     """
     team_dict : dict = dict()
     for team_info in teams_info[10][3]['children']:
@@ -32,6 +58,23 @@ def get_teams(teams_info,team1 : dict,team2 : dict):
                 players.append(PlayerInfo(player_info[2],player_info[3]['children'][0]))
         teamInfo.Team = players
         team_dict[teamInfo.Id] = teamInfo
+    # the reason we get the teams from the scorecard is because we've found sometime the complete teams are not in the squad details
+    if len(scoreCard) > 0:
+        scoreCard_teams = __get_teams_from_scorecard(scoreCard)
+        for id,team in team_dict.items():
+            scoreCard_team = scoreCard_teams[id]
+            if len(scoreCard_team.Team) > len(team.Team):
+                team_ids = [int(x.Id) for x in team.Team]
+                scorecard_ids = [x.Id for x in scoreCard_team.Team]
+                missing_ids = [x for x in scorecard_ids if x not in team_ids]
+                for missing_player in [x for x in scoreCard_team.Team if x.Id in missing_ids]:
+                    team.Team.append(missing_player)
+            # 
+            # for player in team.Team:
+            #     players = [x for x in scoreCard_team.Team if x.Id != player.Id]
+            #     if len(players) == 1:
+            #         team.Team.append(players[0])
+            #     print()
     return team_dict
 
 
