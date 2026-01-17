@@ -11,7 +11,13 @@ from libs.venueinfo import get_venue_info,get_venuecsv_dict
 
 from libs.csvmaker import BattingCSV
 
+def __clean_logs(filename):
+    with open(filename,'w') as f:
+        f.write('')
 def main():
+    __clean_logs('logs/fielders.not.found.log')
+
+
     play_name_exceptions = get_play_name_exceptions_dict()
     battingCSV = BattingCSV()
     log = Logger()
@@ -24,7 +30,7 @@ def main():
         match_teams = get_teams(teamsInfo,scorecard['matchHeader']['team1'],scorecard['matchHeader']['team2'],scorecard['scoreCard'])
         for i,j in match_teams.items():
             if len(j.Team) < 11:
-                pass
+                raise Exception("Team size is {len(j.Team)}")
         for inning_number,batting_team,bowling_team in innings_info_generator(scorecard['scoreCard'],match_teams,play_name_exceptions):
             battingCSV.WriterRow(match_id,inning_number,batting_team)
         c += 1
