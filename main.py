@@ -13,11 +13,6 @@ from libs.csvmaker import BattingCSV
 
 def main():
     play_name_exceptions = get_play_name_exceptions_dict()
-    with open('logs/bowler.is.none.log','w') as f:
-        f.write('')
-
-    with open('logs/findouters.log','w') as f:
-        f.write('')
     battingCSV = BattingCSV()
     log = Logger()
     c = 0
@@ -25,8 +20,6 @@ def main():
     # venuecsv_dict : dict = get_venuecsv_dict()
     # batting_csv.WriteLn('match,innings,team,player,runs,out,\n')
     for match_id,scorecard,teamsInfo in game_info_generator():
-        if match_id == 11857:
-            pass
         # first we're going to make the match teams. we need this info for when the score doesn't give the bowler and fielder details
         match_teams = get_teams(teamsInfo,scorecard['matchHeader']['team1'],scorecard['matchHeader']['team2'],scorecard['scoreCard'])
         for i,j in match_teams.items():
