@@ -1,7 +1,9 @@
 from pathlib import Path
 from json import load,dumps
-from libs.dataclasses import TeamInfo,PlayerInfo
 from re import match as rematch, sub as resub, findall as refindall
+
+from libs.dataclasses import TeamInfo,PlayerInfo
+from libs.outtype import OutType
 
 def include_game(game_description : str):
     if 'practice match' in game_description.lower():
@@ -92,11 +94,11 @@ def __find_fielders(outdesc : str,bowling_team,play_name_exceptions : dict):
         fielder_names.append(fielder_name)
         fielder = __get_player_by_name(fielder_name,bowling_team)
         if fielder:
-            fielders.append(fielder)
+            fielders.append(fielder.Id)
         else:
             fielder = __find_using_name_exceptions(fielder_name,bowling_team,play_name_exceptions)
             if fielder:
-                fielders.append(fielder)
+                fielders.append(fielder.Id)
             else:
                 g1 = rematch(r'sub \((.+?)\)',fielder_name)
                 if g1:
@@ -122,11 +124,11 @@ def __find_fielders(outdesc : str,bowling_team,play_name_exceptions : dict):
                 fielder_names.append(fielder_name)
                 fielder = __get_player_by_name(fielder_name,bowling_team)
                 if fielder:
-                    fielders.append(fielder)
+                    fielders.append(fielder.Id)
                 else:
                     fielder = __find_using_name_exceptions(fielder_name,bowling_team,play_name_exceptions)
                     if fielder:
-                        fielders.append(fielder)
+                        fielders.append(fielder.Id)
                     else:
                         print(f'Seems that "{fielder_name}" is Not in the squad at all - regular XI or extras')
 
@@ -151,10 +153,11 @@ def __find_bowler(outdesc : str,bowling_team,play_name_exceptions : dict):
                     bowler = __find_using_name_exceptions(bowler_name,bowling_team,play_name_exceptions)
     return bowler
 
-def __get_fielders(outtype : str, outdesc : str, batter_data : dict,
+def __get_fielders(outtype : OutType, outdesc : str, batter_data : dict,
                    bowlerId : int, bowlingTeam : list, play_name_exceptions : dict):
     fielders : list = list()
-    if outtype in ['RUNOUT', 'CAUGHT', 'STUMPED','CAUGHTBOWLED']:
+    
+    if outtype in [OutType.RUNOUT,OutType.CAUGHT,OutType.STUMPED,OutType.CAUGHTBOWLED]:
         if fielder := batter_data.get('fielderId1',False):
             fielders.append(fielder)
         if fielder := batter_data.get('fielderId2',False):
@@ -162,10 +165,10 @@ def __get_fielders(outtype : str, outdesc : str, batter_data : dict,
         if fielder := batter_data.get('fielderId3',False):
             fielders.append(fielder)
         if len(fielders) == 0:
-            if outtype == 'CAUGHTBOWLED':
+            if outtype == OutType.CAUGHTBOWLED:
                 if bowlerId != 0:
                     fielders.append(bowlerId)
-            elif outtype in ['CAUGHT','RUNOUT','STUMPED']:
+            elif outtype in [OutType.RUNOUT,OutType.CAUGHT,OutType.STUMPED]:
                 fielders = __find_fielders(outdesc,bowlingTeam,play_name_exceptions)
     return fielders
 
@@ -179,13 +182,13 @@ def innings_info_generator(scorecard_data,match_teams,play_name_exceptions):
         battingTeam.Team = list()
         bowlingTeam.Team = list()
         for i, batter_data in battingTeamDetails['batsmenData'].items():
-            outtype : str = batter_data['wicketCode']
+            outtype : OutType = OutType[batter_data['wicketCode']]
             if outtype == '':
                 if batter_data['outDesc'].lower() in ['not out','batting','retired not out']:
                     outtype = 'NOTOUT'
                 elif batter_data['outDesc'].lower() in ['retired hurt','retired ill']:
                     outtype = 'RETIREDHURT'
-                elif batter_data['outDesc'].lower().startswith('hit wicket'):
+                elif batter_data['outDesc'].lower().startswith('hit wicket') or batter_data['outDesc'].lower().startswith('hit wkt'):
                     outtype = 'HITWICKET'
                 elif batter_data['outDesc'].lower() in ['retired out']:
                     outtype = 'RETIREDOUT'
@@ -220,12 +223,16 @@ def innings_info_generator(scorecard_data,match_teams,play_name_exceptions):
             batter.Bowler = bowler.Id
             batter.BattingPosition = int(i.replace('bat_',''))
             batter.Fielders = list()
-            # if outtype not in ['NOTOUT','DIDNOTBAT','RUNOUT','RETIREDHURT','ABSENTHURT','RETIREDOUT','HANDLED','OBSTRUCTION']:
-            if outtype not in ['LBW','BOWLED','NOTOUT','DIDNOTBAT','RETIREDHURT','ABSENTHURT','RETIREDOUT','HANDLED','OBSTRUCTION']:
+            if batter.Out not in ['LBW','BOWLED','NOTOUT','DIDNOTBAT','RETIREDHURT','ABSENTHURT','RETIREDOUT','HANDLED','OBSTRUCTION']:
                 if not batter_data['outDesc'].startswith('c sub b'):
-                    batter.Fielders = __get_fielders(outtype,batter_data['outDesc'],batter_data,
+                    batter.Fielders = __get_fielders(batter.Out,batter_data['outDesc'],batter_data,
                                                     batter.Bowler,match_teams[bowlingTeamDetails['bowlTeamId']],
                                                     play_name_exceptions)
+            if len(batter.Fielders) > 0:
+                if type(batter.Fielders[0]) == PlayerInfo:
+                    raise Exception("Wrong type of fielders data passed through")
+            else:
+                batter.Fielders.append(0)
             battingTeam.Team.append(batter)
         # bowler data from scorecard
         for i, bowler_data in bowlingTeamDetails['bowlersData'].items():

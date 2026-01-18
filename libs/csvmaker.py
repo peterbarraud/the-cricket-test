@@ -18,8 +18,26 @@ class BattingCSV:
                 'bowler':player.Bowler,'position':player.BattingPosition
             })
 
-    
+    def close(self):
+        self.__f.close()
 
+class PlayerCSV:
+    def __init__(self,csv_file='data/players.csv'):
+        self.__f = open(csv_file,'w',newline='')
+        self.__players : dict = dict()
+        self.__csv_writer = DictWriter(self.__f,['player','name','team','href'])
+        self.__csv_writer.writeheader()
+
+    def WriterRow(self, teamId : int, teamData : TeamInfo):
+        player : PlayerInfo = None
+        for player in teamData.Team:
+            if saved_player := self.__players.get(player.Id,None):
+                self.__players[player.Id].append(player)
+            else:
+                self.__csv_writer.writerow({'team':teamId,'player':player.Id,'name':player.Name,'href':player.Href})
+                self.__players[player.Id] = list()
+                self.__players[player.Id].append(player)
 
     def close(self):
+        x = self.__players
         self.__f.close()

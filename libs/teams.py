@@ -69,12 +69,10 @@ def get_teams(teams_info,team1 : dict,team2 : dict,scoreCard):
                 missing_ids = [x for x in scorecard_ids if x not in team_ids]
                 for missing_player in [x for x in scoreCard_team.Team if x.Id in missing_ids]:
                     team.Team.append(missing_player)
-            # 
-            # for player in team.Team:
-            #     players = [x for x in scoreCard_team.Team if x.Id != player.Id]
-            #     if len(players) == 1:
-            #         team.Team.append(players[0])
-            #     print()
+    # the teams MUST necessarily have size >= 11
+    for _,j in team_dict.items():
+        if len(j.Team) < 11:
+            raise Exception("Team size is {len(j.Team)}")
     return team_dict
 
 
