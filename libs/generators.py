@@ -1,7 +1,9 @@
 from pathlib import Path
 from json import load,dumps
-from libs.dataclasses import TeamInfo,PlayerInfo
 from re import match as rematch, sub as resub, findall as refindall
+
+from libs.dataclasses import TeamInfo,PlayerInfo
+from libs.outtype import OutType
 
 def include_game(game_description : str):
     if 'practice match' in game_description.lower():
@@ -151,10 +153,10 @@ def __find_bowler(outdesc : str,bowling_team,play_name_exceptions : dict):
                     bowler = __find_using_name_exceptions(bowler_name,bowling_team,play_name_exceptions)
     return bowler
 
-def __get_fielders(outtype : str, outdesc : str, batter_data : dict,
+def __get_fielders(outtype : OutType, outdesc : str, batter_data : dict,
                    bowlerId : int, bowlingTeam : list, play_name_exceptions : dict):
     fielders : list = list()
-    if outtype in ['RUNOUT', 'CAUGHT', 'STUMPED','CAUGHTBOWLED']:
+    if outtype in [OutType.RUNOUT, OutType.CAUGHT, OutType.STUMPED,OutType.CAUGHTBOWLED]:
         if fielder := batter_data.get('fielderId1',False):
             fielders.append(fielder)
         if fielder := batter_data.get('fielderId2',False):
@@ -162,10 +164,10 @@ def __get_fielders(outtype : str, outdesc : str, batter_data : dict,
         if fielder := batter_data.get('fielderId3',False):
             fielders.append(fielder)
         if len(fielders) == 0:
-            if outtype == 'CAUGHTBOWLED':
+            if outtype == OutType.CAUGHTBOWLED:
                 if bowlerId != 0:
                     fielders.append(bowlerId)
-            elif outtype in ['CAUGHT','RUNOUT','STUMPED']:
+            elif outtype in [OutType.CAUGHT,OutType.RUNOUT,OutType.STUMPED]:
                 fielders = __find_fielders(outdesc,bowlingTeam,play_name_exceptions)
     return fielders
 
@@ -179,33 +181,37 @@ def innings_info_generator(scorecard_data,match_teams,play_name_exceptions):
         battingTeam.Team = list()
         bowlingTeam.Team = list()
         for i, batter_data in battingTeamDetails['batsmenData'].items():
-            outtype : str = batter_data['wicketCode']
-            if outtype == '':
+            outtype : OutType = getattr(OutType, batter_data['wicketCode'], OutType.NONE)
+            if outtype == OutType.NONE:
                 if batter_data['outDesc'].lower() in ['not out','batting','retired not out']:
-                    outtype = 'NOTOUT'
-                elif batter_data['outDesc'].lower() in ['retired hurt','retired ill']:
-                    outtype = 'RETIREDHURT'
-                elif batter_data['outDesc'].lower().startswith('hit wicket'):
-                    outtype = 'HITWICKET'
-                elif batter_data['outDesc'].lower() in ['retired out']:
-                    outtype = 'RETIREDOUT'
+                    outtype = OutType.NOTOUT
+                elif batter_data['outDesc'].lower() in ['retired hurt','retired ill','retd hurt']:
+                    outtype = OutType.RETIREDHURT
+                elif batter_data['outDesc'].lower().startswith('hit wicket') or batter_data['outDesc'].lower().startswith('hit wkt'):
+                    outtype = OutType.HITWICKET
+                elif batter_data['outDesc'].lower() in ['retired out','retd out']:
+                    outtype = OutType.RETIREDOUT
                 else:
                     if batter_data['runs'] == 0 and batter_data.get('balls',0) == 0:
-                        outtype = 'DIDNOTBAT'
+                        outtype = OutType.DIDNOTBAT
+                    else:
+                        x = batter_data['outDesc']
+                        pass
             else:
-                if outtype == 'RETD_HURT':
-                    outtype = 'RETIREDHURT'
-                elif outtype == 'RETD_OUT':
-                    outtype = 'RETIREDOUT'
-                elif outtype == 'HITWKT':
-                    outtype = 'HITWICKET'
-                elif outtype == 'ABSENT_HURT':
-                    outtype = 'ABSENTHURT'
+                if batter_data['wicketCode'] == 'RETD_HURT':
+                    outtype = OutType.RETIREDHURT
+                elif batter_data['wicketCode'] == 'RETD_OUT':
+                    outtype = OutType.RETIREDOUT
+                elif batter_data['wicketCode'] == 'HITWKT':
+                    outtype = OutType.HITWICKET
+                elif batter_data['wicketCode'] == 'ABSENT_HURT':
+                    outtype = OutType.ABSENTHURT
                 elif 'c & b' in batter_data['outDesc'].lower() or 'c &amp; b' in batter_data['outDesc'].lower():
-                    outtype = 'CAUGHTBOWLED'
+                    outtype = OutType.CAUGHTBOWLED
             
             bowler : PlayerInfo = PlayerInfo(batter_data.get('bowlerId',0))
-            if outtype not in ['NOTOUT','DIDNOTBAT','RUNOUT','RETIREDHURT','ABSENTHURT','RETIREDOUT','HANDLED','OBSTRUCTION'] and bowler.Id == 0:
+            if outtype not in [OutType.NOTOUT,OutType.DIDNOTBAT,OutType.RUNOUT,OutType.RETIREDHURT,
+                               OutType.ABSENTHURT,OutType.RETIREDOUT,OutType.HANDLED,OutType.OBSTRUCTION] and bowler.Id == 0:
                 bowler = __find_bowler(batter_data['outDesc'],match_teams[bowlingTeamDetails['bowlTeamId']],play_name_exceptions)
                 if bowler is None:
                     raise Exception(f"Bowler not found: {batter_data['outDesc']}; Match: {innings['matchId']}")
@@ -216,12 +222,12 @@ def innings_info_generator(scorecard_data,match_teams,play_name_exceptions):
             batter.Fours = batter_data['fours']
             batter.Sixes = batter_data['sixes']
             batter.Mins = batter_data.get('mins',0)
-            batter.Out = outtype
+            batter.OutType = outtype
             batter.Bowler = bowler.Id
             batter.BattingPosition = int(i.replace('bat_',''))
             batter.Fielders = list()
-            # if outtype not in ['NOTOUT','DIDNOTBAT','RUNOUT','RETIREDHURT','ABSENTHURT','RETIREDOUT','HANDLED','OBSTRUCTION']:
-            if outtype not in ['LBW','BOWLED','NOTOUT','DIDNOTBAT','RETIREDHURT','ABSENTHURT','RETIREDOUT','HANDLED','OBSTRUCTION']:
+            if outtype not in [OutType.LBW,OutType.BOWLED,OutType.NOTOUT,OutType.DIDNOTBAT,OutType.RETIREDHURT,
+                               OutType.ABSENTHURT,OutType.RETIREDOUT,OutType.HANDLED,OutType.OBSTRUCTION]:
                 if not batter_data['outDesc'].startswith('c sub b'):
                     batter.Fielders = __get_fielders(outtype,batter_data['outDesc'],batter_data,
                                                     batter.Bowler,match_teams[bowlingTeamDetails['bowlTeamId']],

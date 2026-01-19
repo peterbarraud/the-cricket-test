@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from libs.outtype import OutType
 
 @dataclass
 class GameInfo:
@@ -31,7 +32,7 @@ class PlayerInfo:
     Fours : int = 0
     Sixes : int = 0
     Mins : int = 0
-    Out : str = 0
+    OutType = OutType.NOTOUT
     Bowler : int = 0
     BattingPosition : int = 0
     Fielders : list = None
