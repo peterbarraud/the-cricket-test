@@ -3,6 +3,7 @@ from pandas.api.types import is_numeric_dtype
 from numpy import iinfo,uint8,uint16,uint32
 
 def optimize_df(df : DataFrame, do_optimize = False):
+    memory_usage = df.memory_usage(deep=True).sum()
     for col in df.columns:
         if is_numeric_dtype(df[col]):
             if max(df[col]) < iinfo(uint8).max:
@@ -27,3 +28,6 @@ def optimize_df(df : DataFrame, do_optimize = False):
                             print(f"{col} can be optimized to: {uint16}")
                     else:
                         raise Exception("Missed everything")
+    memory_reduction = df.memory_usage(deep=True).sum()-memory_usage
+    improvement = round((memory_reduction/memory_usage)/100,2)
+    print(f"Memory improved by: {(improvement)}")
