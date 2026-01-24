@@ -1,4 +1,4 @@
-Id,SeriesId,Start,End,Winner,TossWinner,DescisionToBat,Margin,IsInnningsWin,IsWinByRuns,Team1Id,Team2Id,HomeTeamId,Team1CaptainId,Team2CaptainId,VenueId
+game,series,start,end,winner,tosswinner,descisiontobat,margin,isinnningswin,iswinbyruns,team1,team2,hometeam,team1captain,team2captain,venue
 100220,8393,1726718400000,1726984046404,2,6,False,280,False,True,2,6,2,576,9864,11
 100229,8393,1727409600000,1727771291415,2,2,False,7,False,False,2,6,2,576,9864,32
 100265,8395,1729051200000,1729407455458,13,2,True,8,False,False,2,13,2,576,8216,27
