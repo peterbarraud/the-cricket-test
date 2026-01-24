@@ -27,7 +27,7 @@ def optimize_df(df : DataFrame, do_optimize = False):
                         else:
                             print(f"{col} can be optimized to: {uint16}")
                     else:
-                        raise Exception("Missed everything")
+                        print(f"{col} cannot be optimized further")
     memory_reduction = df.memory_usage(deep=True).sum()-memory_usage
     improvement = round((memory_reduction/memory_usage)/100,2)
     print(f"Memory improved by: {(improvement)}")
