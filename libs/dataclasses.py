@@ -11,7 +11,7 @@ class GameInfo:
     TossWinner : int = 0
     DescisionToBat : bool = True
     Margin : int = 0
-    IsInnningsWin : bool = False
+    IsInningsWin : bool = False
     IsWinByRuns : bool = False
     Team1Id : int = 0
     Team2Id : int = 0
