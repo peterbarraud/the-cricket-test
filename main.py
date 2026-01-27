@@ -1,5 +1,5 @@
 import json
-from csv import DictWriter
+from csv import DictWriter,DictReader
 
 from libs.logger import Logger
 from libs.generators import game_info_generator,innings_info_generator
@@ -8,8 +8,7 @@ from libs.gameinfo import get_game_info
 from libs.dataclasses import GameInfo,TeamInfo,VenueInfo
 from libs.playerinfo import get_playerscsv_dict,get_play_name_exceptions_dict
 from libs.venueinfo import get_venue_info,get_venuecsv_dict
-
-from libs.csvmaker import BattingCSV,PlayerCSV
+from libs.csvmaker import BattingCSV,PlayerCSV,GameCSV
 
 def make_batting_data():
     play_name_exceptions = get_play_name_exceptions_dict()
@@ -38,8 +37,23 @@ def make_player_data():
 
     playerCSV.close()
 
+def make_game_data():
+    c = 0
+    gameCSV = GameCSV()
+    for match_id,scorecard,teamsInfo in game_info_generator():
+        c += 1
+        print(f"{c}: {match_id}")
+        game_info : GameInfo = get_game_info(scorecard['matchHeader'],teamsInfo[10][3]['children'])
+        if game_info.Team1Captain == 0:
+            raise Exception(f"{match_id} - Issue with team captain Team1Captain = 0")
+        if game_info.Team2Captain == 0:
+            raise Exception(f"{match_id} - Issue with team captain Team2Captain = 0")
+        gameCSV.WriterRow(game_info)
+    
+    gameCSV.close()
+
 def main():
-    make_batting_data()
+    pass
 
 if __name__ == "__main__":
     print()
