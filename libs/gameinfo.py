@@ -38,15 +38,15 @@ def __get_team_captains(team_info : list,teamsd : dict):
                     continue
     return team1captain,team2captain
 
-def __get_game_dates(game_id,match_description):
-    match_facts_url : str = f"https://www.cricbuzz.com/cricket-match-facts/{game_id}"
+def __get_game_dates(game_id,match_description,config):
+    match_facts_url : str = f"{config['server']}/cricket-match-facts/{game_id}"
     mf_soup = BS4(get(match_facts_url).text,'html.parser')
     anchors = mf_soup.find_all('a',{'title':'INFO'})
     if len(anchors) == 1:
         series_href = anchors[0].parent.find('a',{'href':compile('^/cricket-series.+?matches$')}).attrs['href']
-        series_href = f"https://www.cricbuzz.com{series_href}"
-    if not series_href.startswith('https://www.cricbuzz.com'):
-        series_href = f"https://www.cricbuzz.com{series_href}"
+        series_href = f"{config['server']}{series_href}"
+    if not series_href.startswith({config['server']}):
+        series_href = f"{config['server']}{series_href}"
     series_soup = BS4(get(series_href).text,'html.parser')
     for script_tag in series_soup.find_all('script'):
         script_tag_text : str = script_tag.text
@@ -64,7 +64,7 @@ def __get_game_dates(game_id,match_description):
     raise Exception(f"At end: {game_id}")
 
 
-def get_game_info(game_header,team_info):
+def get_game_info(game_header,team_info,config:dict):
     teamd : dict = dict()
     home_team_exceptions : dict = get_home_team_exceptions()
     # tossWinner = game_header['tossResults'].get('tossWinnerId',0) # seems that for many games, we haven't got any toss details
@@ -72,7 +72,7 @@ def get_game_info(game_header,team_info):
     game_info = GameInfo()
     game_info.Id = game_header['matchId']
     game_info.Series = game_header['seriesId']
-    game_info.Start,game_info.End = __get_game_dates(game_header['matchId'],game_header['matchDescription'])
+    game_info.Start,game_info.End = __get_game_dates(game_header['matchId'],game_header['matchDescription'],config)
     game_info.TossWinner = game_header['tossResults'].get('tossWinnerId',0)
     game_info.DescisionToBat = game_header['tossResults'].get('decision',None) == 'Batting'
     game_info.Team1 = game_header['team1']['id']

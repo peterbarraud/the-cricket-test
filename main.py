@@ -37,13 +37,18 @@ def make_player_data():
 
     playerCSV.close()
 
+def get_config():
+    with open('libs/config.json') as f:
+        return json.load(f)
+
 def make_game_data():
+    config : dict = get_config()
     c = 0
     gameCSV = GameCSV()
     for match_id,scorecard,teamsInfo in game_info_generator():
         c += 1
         print(f"{c}: {match_id}")
-        game_info : GameInfo = get_game_info(scorecard['matchHeader'],teamsInfo[10][3]['children'])
+        game_info : GameInfo = get_game_info(scorecard['matchHeader'],teamsInfo[10][3]['children'],config)
         if game_info.Team1Captain == 0:
             raise Exception(f"{match_id} - Issue with team captain Team1Captain = 0")
         if game_info.Team2Captain == 0:
@@ -53,7 +58,7 @@ def make_game_data():
     gameCSV.close()
 
 def main():
-    pass
+    make_game_data()
 
 if __name__ == "__main__":
     print()
