@@ -1,9 +1,10 @@
 from csv import reader,DictWriter
-from json import dumps
+from json import dumps,loads
 from bs4 import BeautifulSoup as BS4
 from requests import get
 from re import compile,search,sub as resub,MULTILINE
-from json import loads
+from pathlib import Path
+from pickle import load as loadp,dump as dumpp
 
 from libs.logger import Logger
 from libs.dataclasses import GameInfo
@@ -38,16 +39,31 @@ def __get_team_captains(team_info : list,teamsd : dict):
                     continue
     return team1captain,team2captain
 
+def __get_series_soup(game_id,config):
+    series_soup = None
+    soup_file_path = Path(f"data/series.soups/{game_id}.soup")
+    if soup_file_path.exists():
+        with open(soup_file_path,'rb') as f:
+            series_soup : BS4 = loadp(f)
+    else:
+        match_facts_url : str = f"{config['server']}/cricket-match-facts/{game_id}"
+        mf_soup = BS4(get(match_facts_url).text,'html.parser')
+        anchors = mf_soup.find_all('a',{'title':'INFO'})
+        if len(anchors) == 1:
+            series_href = anchors[0].parent.find('a',{'href':compile('^/cricket-series.+?matches$')}).attrs['href']
+            series_href = f"{config['server']}{series_href}"
+        else:
+            raise Exception("too many INFO anchors")
+        if not series_href.startswith(config['server']):
+            series_href = f"{config['server']}{series_href}"
+        series_soup = BS4(get(series_href).text,'html.parser')
+        # finally save this to a soup file (so next time we don't have to do that whole everything)
+        with open(soup_file_path,'wb') as f:
+            dumpp(series_soup,f)
+    return series_soup
+
 def __get_game_dates(game_id,match_description,config):
-    match_facts_url : str = f"{config['server']}/cricket-match-facts/{game_id}"
-    mf_soup = BS4(get(match_facts_url).text,'html.parser')
-    anchors = mf_soup.find_all('a',{'title':'INFO'})
-    if len(anchors) == 1:
-        series_href = anchors[0].parent.find('a',{'href':compile('^/cricket-series.+?matches$')}).attrs['href']
-        series_href = f"{config['server']}{series_href}"
-    if not series_href.startswith({config['server']}):
-        series_href = f"{config['server']}{series_href}"
-    series_soup = BS4(get(series_href).text,'html.parser')
+    series_soup = __get_series_soup(game_id,config)
     for script_tag in series_soup.find_all('script'):
         script_tag_text : str = script_tag.text
         if script_tag_text.startswith('self.__next_f.push') and match_description in script_tag_text:
@@ -58,10 +74,18 @@ def __get_game_dates(game_id,match_description,config):
                 re_pattern = rf'"matchDesc":"{match_description.replace('(','\(').replace(')','\)')}","matchFormat":"TEST","startDate":"(-?\d+?)","endDate":"(-?\d+?)"'
                 g1 = search(re_pattern,mains,MULTILINE)
                 if g1 and len(g1.groups()) == 2:
-                    return g1.groups()[0],g1.groups()[1]
-                else:
-                    raise Exception(f"At 66: {game_id}, {match_description}")
-    raise Exception(f"At end: {game_id}")
+                    # we are going to remove the millseconds last 000
+                    start_date,end_date = [int(x) for x in g1.groups()]
+                    if start_date % 1000 == 0:
+                        start_date = int(start_date/1000)
+                    else:
+                        raise Exception("Start date isn't divisible by 1000")
+                    if end_date % 1000 == 0:
+                        end_date = int(end_date/1000)
+                    else:
+                        raise Exception("End date isn't divisible by 1000")
+                    return start_date,end_date
+    raise Exception("Error at end of __get_game_dates")
 
 
 def get_game_info(game_header,team_info,config:dict):
@@ -72,7 +96,7 @@ def get_game_info(game_header,team_info,config:dict):
     game_info = GameInfo()
     game_info.Id = game_header['matchId']
     game_info.Series = game_header['seriesId']
-    game_info.Start,game_info.End = __get_game_dates(game_header['matchId'],game_header['matchDescription'],config)
+    game_info.Start,game_info.End = __get_game_dates(game_header['matchId'],game_header['matchDescription'],config)    
     game_info.TossWinner = game_header['tossResults'].get('tossWinnerId',0)
     game_info.DescisionToBat = game_header['tossResults'].get('decision',None) == 'Batting'
     game_info.Team1 = game_header['team1']['id']
