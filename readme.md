@@ -9,3 +9,15 @@ Copy the following files to these locations
 
 ## Get dataframe by CSV
 Use the `get_dataframe_by_name`
+
+## Epoch time to datetime
+We are saving start and end date of a match in epoch time (instead of datetime). so, you'll need to extract datetime out if you want a pretty looking date
+But sorting of games by date, might actually be more efficient this way
+```
+from datetime import datetime
+dt = datetime.fromtimestamp(epoch)
+# for negative epoch (seems to be specifically required for Windows OS)
+dt = datetime(1970, 1, 1) + timedelta(seconds=-2928441600)
+```
+
+
