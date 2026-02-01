@@ -33,4 +33,4 @@ def optimize_df(df : DataFrame, do_optimize = False,displayOutput=True):
                     print(f"{col} cannot be optimized further")
     memory_reduction = memory_usage-df.memory_usage(deep=True).sum()
     improvement = round((memory_reduction/memory_usage)*100,2)
-    print(f"Memory improved by: {(improvement)}%")
+    print(f"Memory on the Dataframe improved by: {(improvement)}%")
