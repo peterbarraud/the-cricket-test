@@ -75,6 +75,18 @@ def get_teams(teams_info,team1 : dict,team2 : dict,scoreCard):
             raise Exception("Team size is {len(j.Team)}")
     return team_dict
 
+def get_team_info(scorecard : dict):
+    teams_info : dict = dict()
+    
+    for innings in scorecard['scoreCard']:
+        teams_info[innings['batTeamDetails']['batTeamId']] = TeamInfo(innings['batTeamDetails']['batTeamId'],
+                                           innings['batTeamDetails']['batTeamName'],
+                                           innings['batTeamDetails']['batTeamShortName'])
+        teams_info[innings['bowlTeamDetails']['bowlTeamId']] = TeamInfo(innings['bowlTeamDetails']['bowlTeamId'],
+                                           innings['bowlTeamDetails']['bowlTeamName'],
+                                           innings['bowlTeamDetails']['bowlTeamShortName'])
+    return teams_info
+    
 
 def get_teamscsv_dict():
     teams_dict : dict = dict()
