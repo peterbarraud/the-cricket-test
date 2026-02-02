@@ -97,6 +97,7 @@ class PlayerInfo:
 class TeamInfo:
     Id : int = 0
     Name : str = None
+    ShortName : str = None
     Team : list = None
 
 @dataclass
