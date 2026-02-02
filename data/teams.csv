@@ -1,39 +1,15 @@
 id,name,shortname
 2,India,IND
-96,Afghanistan,AFG
-27,Ireland,IRE
-3,Pakistan,PAK
-4,Australia,AUS
-5,Sri Lanka,SL
 6,Bangladesh,BAN
+13,New Zealand,NZ
+3,Pakistan,PAK
 9,England,ENG
 10,West Indies,WI
+5,Sri Lanka,SL
+4,Australia,AUS
 11,South Africa,RSA
-12,Zimbabwe,ZIM
-13,New Zealand,NZ
-71,Malaysia,MLY
-72,Nepal,NEP
-77,Germany,GER
-161,Namibia,NAM
-185,Denmark,DEN
-190,Singapore,SIN
-287,Papua New Guinea,PNG
-298,Kuwait,KUW
-300,Vanuatu,VAN
-303,Jersey,JER
-304,Oman,OMAN
-343,Fiji,FIJI
-527,Italy,ITA
-529,Botswana,BW
-541,Belgium,BEL
-44,Uganda,UGA
-26,Canada,CAN
-7,United Arab Emirates,UAE
-8,Hong Kong;China,HKC
-14,Kenya,KEN
-15,United States of America,USA
-23,Scotland,SCO
-24,Netherlands,NED
-25,Bermuda,BER
-675,Iran,IRN
-700,Wales,WA
+12,Zimbabwe,Zimbabwe
+96,Afghanistan,AFG
+27,Ireland,IRE
+17,ICC World XI,ICC World XI
+0,Neutral,
