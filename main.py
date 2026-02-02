@@ -3,12 +3,12 @@ from csv import DictWriter,DictReader
 
 from libs.logger import Logger
 from libs.generators import game_info_generator,innings_info_generator
-from libs.teams import get_teams,get_teamscsv_dict
+from libs.teams import get_teams,get_teamscsv_dict,get_team_info
 from libs.gameinfo import get_game_info
 from libs.dataclasses import GameInfo,TeamInfo,VenueInfo
 from libs.playerinfo import get_playerscsv_dict,get_play_name_exceptions_dict
 from libs.venueinfo import get_venue_info,get_venuecsv_dict
-from libs.csvmaker import BattingCSV,PlayerCSV,GameCSV
+from libs.csvmaker import BattingCSV,PlayerCSV,GameCSV,TeamCSV
 
 def make_batting_data():
     play_name_exceptions = get_play_name_exceptions_dict()
@@ -47,18 +47,39 @@ def make_game_data():
     gameCSV = GameCSV()
     for match_id,scorecard,teamsInfo in game_info_generator():
         c += 1
-        print(f"{c}: {match_id}")
+        if c % 100 == 0:
+            print(c)
         game_info : GameInfo = get_game_info(scorecard['matchHeader'],teamsInfo[10][3]['children'],config)
+        if game_info.Team2 == 0 or game_info.Team1 == 0:
+            pass
         if game_info.Team1Captain == 0:
             raise Exception(f"{match_id} - Issue with team captain Team1Captain = 0")
         if game_info.Team2Captain == 0:
             raise Exception(f"{match_id} - Issue with team captain Team2Captain = 0")
-        gameCSV.WriterRow(game_info)
-    
+        gameCSV.WriterRow(game_info)    
     gameCSV.close()
 
+def make_team_data():
+    """
+    Makes the teams.csv
+    """
+    c = 0
+    team_id_list : list = list()
+    teamCSV = TeamCSV()
+    for match_id,scorecard,teamsInfo in game_info_generator():
+        c += 1
+        if c % 100 == 0:
+            print(c)
+        for teamId,teamInfo in get_team_info(scorecard).items():
+            if teamId not in team_id_list:
+                teamCSV.WriterRow(teamInfo)
+                team_id_list.append(teamId)
+    # we are also going to add one row for neutral venue (id=0)
+    teamCSV.WriterRow(TeamInfo(0,'Neutral'))
+    teamCSV.close()
+
 def main():
-    make_game_data()
+    make_team_data()
 
 if __name__ == "__main__":
     print()
