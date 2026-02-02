@@ -1,10 +1,12 @@
 from csv import DictWriter
 from libs.dataclasses import TeamInfo,PlayerInfo,GameInfo
 from libs.csvnames import CSVName
+from io import TextIOWrapper
 
 class CSVBase:
     def __init__(self,csv_file : str,field_names : list):
-        self.__f = open(csv_file,'w',newline='')
+        self.__f : TextIOWrapper = open(csv_file,'w',newline='')
+        x = self.__f
         self.__csv_writer = DictWriter(self.__f,field_names)
         self.__csv_writer.writeheader()
 
@@ -12,11 +14,12 @@ class CSVBase:
         self.__csv_writer.writerow(row)
 
     def close(self):
+        print(f'CSV saved at: {self.__f.name}')
         self.__f.close()
 
 
 class BattingCSV(CSVBase):
-    def __init__(self,csv_file=f'data/{CSVName.Batting}.csv'):
+    def __init__(self,csv_file=f'data/{CSVName.Batting.name.lower()}.csv'):
         super().__init__(csv_file,['gameid','innings','team','batter','position',
                        'runs','balls','fours','sixes','out','fielders','bowler'])
 
@@ -31,7 +34,7 @@ class BattingCSV(CSVBase):
 
 
 class PlayerCSV(CSVBase):
-    def __init__(self,csv_file=f'data/{CSVName.Players}.csv'):
+    def __init__(self,csv_file=f'data/{CSVName.Players.name.lower()}.csv'):
         super().__init__(csv_file,['gameid','innings','team','batter','position',
                        'runs','balls','fours','sixes','out','fielders','bowler'])
         self.__players : dict = dict()
@@ -47,7 +50,7 @@ class PlayerCSV(CSVBase):
                 self.__players[player.Id].append(player)
 
 class GameCSV(CSVBase):
-    def __init__(self,csv_file=f'data/{CSVName.Games}.csv'):
+    def __init__(self,csv_file=f'data/{CSVName.Games.name.lower()}.csv'):
         
         super().__init__(csv_file,['game','series','start','end','winner','tosswinner','descisiontobat',
                                    'margin','isinnningswin','iswinbyruns','team1','team2','hometeam',
@@ -63,8 +66,7 @@ class GameCSV(CSVBase):
         
 
 class TeamCSV(CSVBase):
-    def __init__(self,csv_file=f'data/{CSVName.Teams}.csv'):
-        
+    def __init__(self,csv_file=f'data/{CSVName.Teams.name.lower()}.csv'):
         super().__init__(csv_file,['id','name','shortname'])
 
     def WriterRow(self, teamData : TeamInfo):
