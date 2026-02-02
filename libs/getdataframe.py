@@ -14,7 +14,7 @@ def get_dataframe_by_name(csvName : CSVName, optimizeDf : bool = True,  usecols=
         optimize_df(df,do_optimize=True,displayOutput=showOutput)
     return df
 
-def get_datetime_from_epoch(df: datetime,epoch:int):
+def get_datetime_from_epoch(epoch:int):
     dt : datetime = None
     if epoch < 0:
         dt = datetime(1970, 1, 1) + timedelta(seconds=epoch)
