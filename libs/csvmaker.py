@@ -1,5 +1,6 @@
 from csv import DictWriter
 from libs.dataclasses import TeamInfo,PlayerInfo,GameInfo
+from libs.csvnames import CSVName
 
 class CSVBase:
     def __init__(self,csv_file : str,field_names : list):
@@ -15,7 +16,7 @@ class CSVBase:
 
 
 class BattingCSV(CSVBase):
-    def __init__(self,csv_file='data/batting.csv'):
+    def __init__(self,csv_file=f'data/{CSVName.Batting}.csv'):
         super().__init__(csv_file,['gameid','innings','team','batter','position',
                        'runs','balls','fours','sixes','out','fielders','bowler'])
 
@@ -30,7 +31,7 @@ class BattingCSV(CSVBase):
 
 
 class PlayerCSV(CSVBase):
-    def __init__(self,csv_file='data/players.csv'):
+    def __init__(self,csv_file=f'data/{CSVName.Players}.csv'):
         super().__init__(csv_file,['gameid','innings','team','batter','position',
                        'runs','balls','fours','sixes','out','fielders','bowler'])
         self.__players : dict = dict()
@@ -46,7 +47,7 @@ class PlayerCSV(CSVBase):
                 self.__players[player.Id].append(player)
 
 class GameCSV(CSVBase):
-    def __init__(self,csv_file='data/games.csv'):
+    def __init__(self,csv_file=f'data/{CSVName.Games}.csv'):
         
         super().__init__(csv_file,['game','series','start','end','winner','tosswinner','descisiontobat',
                                    'margin','isinnningswin','iswinbyruns','team1','team2','hometeam',
@@ -59,4 +60,16 @@ class GameCSV(CSVBase):
                                     'isinnningswin':gameData.IsInningsWin,'iswinbyruns':gameData.IsWinByRuns,
                                     'team1':gameData.Team1,'team2':gameData.Team2,'hometeam':gameData.HomeTeam,
                                    'team1captain':gameData.Team1Captain,'team2captain':gameData.Team2Captain,'venue':gameData.Venue})
+        
+
+class TeamCSV(CSVBase):
+    def __init__(self,csv_file=f'data/{CSVName.Teams}.csv'):
+        
+        super().__init__(csv_file,['id','name','shortname'])
+
+    def WriterRow(self, teamData : TeamInfo):
+        super().WriteRow({'id':teamData.Id,'name':teamData.Name,'shortname':teamData.ShortName})
+        
+        
+
 
