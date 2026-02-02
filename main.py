@@ -66,7 +66,7 @@ def make_team_data():
     c = 0
     team_id_list : list = list()
     teamCSV = TeamCSV()
-    for match_id,scorecard,teamsInfo in game_info_generator():
+    for _,scorecard,_ in game_info_generator():
         c += 1
         if c % 100 == 0:
             print(c)
@@ -79,7 +79,7 @@ def make_team_data():
     teamCSV.close()
 
 def main():
-    make_team_data()
+    make_game_data()
 
 if __name__ == "__main__":
     print()
