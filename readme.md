@@ -7,17 +7,19 @@ Copy the following files to these locations
 * [series.soups](https://drive.google.com/file/d/1JdBrp1tSPfPzNmo3BFl3-25c58qfQSCz/view?usp=drive_link) - extract the zip to the data folder - make sure the folder name is `series.soups` (and it's under the `data` folder). And it directly contains the `series.soup` files
 
 
-## Get dataframe by CSV
-Use the `get_dataframe_by_name`
-
-## Epoch time to datetime
-We are saving start and end date of a match in epoch time (instead of datetime). so, you'll need to extract datetime out if you want a pretty looking date
-But sorting of games by date, might actually be more efficient this way
+## Get dataframe by CSV name
 ```
-from datetime import datetime
-dt = datetime.fromtimestamp(epoch)
-# for negative epoch (seems to be specifically required for Windows OS)
-dt = datetime(1970, 1, 1) + timedelta(seconds=-2928441600)
+from getdataframe import get_dataframe_by_name
 ```
-
-
+**Example:**
+```
+df : DataFrame = get_dataframe_by_name(csvName=CSVName.Games,optimizeDf=True,showOutput=False)
+```
+## Get datetime from epoch
+```
+from getdataframe import get_datetime_from_epoch
+```
+**Example:**
+```
+df['end'] = df['end'].apply(get_datetime_from_epoch)
+```
