@@ -99,6 +99,19 @@ class TeamInfo:
     Name : str = None
     ShortName : str = None
     Team : list = None
+    def __eq__(self, other):
+        otherObject : TeamInfo = other
+        isDifferent = 0
+        if self.Id != otherObject.Id:
+            print('team different')
+            isDifferent += 1
+        if self.Name != otherObject.Name:
+            print('name different')
+            isDifferent += 1
+        if self.ShortName != otherObject.ShortName:
+            print('shortname different')
+            isDifferent += 1
+        return isDifferent == 0
 
 @dataclass
 class VenueInfo:
@@ -106,3 +119,20 @@ class VenueInfo:
     Name : str = None
     City : str = None
     Country : int = 0
+    CountryName : str = None
+    def __eq__(self, other):
+        otherObject : VenueInfo = other
+        isDifferent = 0
+        if self.Id != otherObject.Id:
+            print('id different')
+            isDifferent += 1
+        if self.Name != otherObject.Name:
+            print('id different')
+            isDifferent += 1
+        if self.City != otherObject.City:
+            print('city different')
+            isDifferent += 1
+        if self.Country != otherObject.Country:
+            print('country different')
+            isDifferent += 1
+        return isDifferent == 0
