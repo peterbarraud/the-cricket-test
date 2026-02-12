@@ -76,8 +76,12 @@ def get_teams(teams_info,team1 : dict,team2 : dict,scoreCard):
     return team_dict
 
 def get_team_info(scorecard : dict):
+    """
+    Get the team info
+    :param scorecard: json scorecard dict
+    :type scorecard: teaminfo dict (for both teams in one go)
+    """
     teams_info : dict = dict()
-    
     for innings in scorecard['scoreCard']:
         teams_info[innings['batTeamDetails']['batTeamId']] = TeamInfo(innings['batTeamDetails']['batTeamId'],
                                            innings['batTeamDetails']['batTeamName'],
@@ -93,6 +97,16 @@ def get_teamscsv_dict():
     with open('data/teams.csv') as f:
         for row in DictReader(f):
             teams_dict[int(row['id'])] = row['name']
+    return teams_dict
+
+def get_teams_by_name():
+    """
+    Using the teams.csv get a name:id dict. So, we can get the id for a team given it's name
+    """
+    teams_dict : dict = dict()
+    with open('data/teams.csv') as f:
+        for row in DictReader(f):
+            teams_dict[row['name']] = int(row['id'])
     return teams_dict
 
 def make_teams_csv(teams_dict):
