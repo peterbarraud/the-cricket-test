@@ -1,13 +1,14 @@
 from csv import DictWriter
-from libs.dataclasses import TeamInfo,PlayerInfo,GameInfo
+from libs.dataclasses import TeamInfo,PlayerInfo,GameInfo,VenueInfo
 from libs.csvnames import CSVName
 from io import TextIOWrapper
+from dataclasses import asdict
 
 class CSVBase:
-    def __init__(self,csv_file : str,field_names : list):
+    def __init__(self,csv_file : str,field_names : list,delimiter=','):
         self.__f : TextIOWrapper = open(csv_file,'w',newline='')
         x = self.__f
-        self.__csv_writer = DictWriter(self.__f,field_names)
+        self.__csv_writer = DictWriter(self.__f,field_names,delimiter=delimiter)
         self.__csv_writer.writeheader()
 
     def WriteRow(self,row : dict):
@@ -23,7 +24,7 @@ class BattingCSV(CSVBase):
         super().__init__(csv_file,['gameid','innings','team','batter','position',
                        'runs','balls','fours','sixes','out','fielders','bowler'])
 
-    def WriterRow(self, game_id : int, innings_number : int, battingTeamData : TeamInfo):
+    def WriteRow(self, game_id : int, innings_number : int, battingTeamData : TeamInfo):
         player : PlayerInfo = None
         for player in battingTeamData.Team:
             super().WriteRow({'gameid':game_id,'innings':innings_number,'team':battingTeamData.Id,'batter':player.Id,
@@ -39,7 +40,7 @@ class PlayerCSV(CSVBase):
                        'runs','balls','fours','sixes','out','fielders','bowler'])
         self.__players : dict = dict()
 
-    def WriterRow(self, teamId : int, teamData : TeamInfo):
+    def WriteRow(self, teamId : int, teamData : TeamInfo):
         player : PlayerInfo = None
         for player in teamData.Team:
             if saved_player := self.__players.get(player.Id,None):
@@ -56,7 +57,7 @@ class GameCSV(CSVBase):
                                    'margin','isinnningswin','iswinbyruns','team1','team2','hometeam',
                                    'team1captain','team2captain','venue'])
 
-    def WriterRow(self, gameData : GameInfo):
+    def WriteRow(self, gameData : GameInfo):
         super().WriteRow({'game':gameData.Id,'series':gameData.Series,'start':gameData.Start,
                                     'end':gameData.End,'winner':gameData.Winner,'tosswinner':gameData.TossWinner,
                                     'descisiontobat':gameData.DescisionToBat,'margin':gameData.Margin,
@@ -69,8 +70,16 @@ class TeamCSV(CSVBase):
     def __init__(self,csv_file=f'data/{CSVName.Teams.name.lower()}.csv'):
         super().__init__(csv_file,['id','name','shortname'])
 
-    def WriterRow(self, teamData : TeamInfo):
+    def WriteRow(self, teamData : TeamInfo):
         super().WriteRow({'id':teamData.Id,'name':teamData.Name,'shortname':teamData.ShortName})
+
+class VenueCSV(CSVBase):
+    def __init__(self,csv_file=f'data/{CSVName.Venues.name.lower()}.csv'):
+        super().__init__(csv_file,['id','name','city','country'],delimiter='|')
+
+    def WriteRow(self, venueData : VenueInfo):
+        super().WriteRow({'id':venueData.Id,'name':venueData.Name,'city':venueData.City,'country':venueData.Country})
+
         
         
 
