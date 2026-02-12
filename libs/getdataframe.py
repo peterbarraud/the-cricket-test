@@ -3,13 +3,13 @@ from libs.optimizer import optimize_df
 from pandas import read_csv, DataFrame
 from datetime import datetime,timedelta
 
-def get_dataframe_by_name(csvName : CSVName, optimizeDf : bool = True,  usecols=list(),showOutput=True) -> DataFrame:
+def get_dataframe_by_name(csvName : CSVName, optimizeDf : bool = True,  usecols=list(),showOutput=True,separator=',') -> DataFrame:
     df : DataFrame = None
     csv_path : str = f'data/{csvName.name.lower()}.csv'
     if len(usecols):
-        df : DataFrame = read_csv(csv_path,usecols=usecols)
+        df : DataFrame = read_csv(csv_path,usecols=usecols,sep=separator)
     else:
-        df : DataFrame = read_csv(csv_path)
+        df : DataFrame = read_csv(csv_path,sep=separator)
     if optimizeDf:
         optimize_df(df,do_optimize=True,displayOutput=showOutput)
     return df
@@ -21,6 +21,3 @@ def get_datetime_from_epoch(epoch:int):
     else:
         dt = datetime.fromtimestamp(epoch)
     return dt
-
-
-
