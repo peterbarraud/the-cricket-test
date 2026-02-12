@@ -34,9 +34,6 @@ id|name|city|country
 128|Shere Bangla National Stadium|Dhaka|6
 70|Queens Sports Club|Bulawayo|12
 93|Zahur Ahmed Chowdhury Stadium|Chattogram|6
-94|Sheikh Zayed Stadium|Abu Dhabi|7
-153|Dubai International Cricket Stadium|Dubai|7
-140|Sharjah Cricket Stadium|Sharjah|7
 512|Perth Stadium|Perth|4
 51|Arun Jaitley Stadium|Delhi|2
 31|Eden Gardens|Kolkata|2
@@ -49,9 +46,9 @@ id|name|city|country
 80|Rajiv Gandhi International Stadium|Hyderabad|2
 50|Narendra Modi Stadium|Ahmedabad|2
 228|Vidarbha Cricket Association Stadium|Nagpur|2
-73|St George's Park|Gqeberha|11
+73|St George's Park|Port Elizabeth|11
 60|Riverside Ground|Chester-le-Street|9
-101|National Cricket Stadium|St George's, Grenada|10
+101|National Cricket Stadium|St Georges, Grenada|10
 41|Eden Park|Auckland|13
 379|Sylhet International Cricket Stadium|Sylhet|6
 104|Sheikh Abu Naser Stadium|Khulna|6
@@ -65,7 +62,6 @@ id|name|city|country
 26|Gaddafi Stadium|Lahore|3
 58|Arnos Vale Ground|Kingstown, St Vincent|10
 59|Daren Sammy National Cricket Stadium|Gros Islet, St Lucia|10
-62|Sophia Gardens|Cardiff|700
 92|Khan Shaheb Osman Ali Stadium|Fatullah|6
 29|Vidarbha Cricket Association Ground|Nagpur|2
 152|Holkar Cricket Stadium|Indore|2
@@ -122,6 +118,10 @@ id|name|city|country
 227|Bramall Lane|Sheffield|9
 204|Lord's|Durban|11
 215|Exhibition Ground|Brisbane|4
-390|Tolerance Oval|Abu Dhabi|7
 238|Gymkhana Ground|Mumbai|2
 111|Civil Service Cricket Club|Belfast|27
+94|Sheikh Zayed Stadium|Abu Dhabi|97
+153|Dubai International Cricket Stadium|Dubai|97
+140|Sharjah Cricket Stadium|Sharjah|97
+62|Sophia Gardens|Cardiff|98
+390|Tolerance Oval|Abu Dhabi|97
